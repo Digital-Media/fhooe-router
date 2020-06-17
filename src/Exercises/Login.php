@@ -1,6 +1,6 @@
 <?php
 
-namespace Examples;
+namespace Exercises;
 
 use NormForm\AbstractNormForm;
 
@@ -12,7 +12,7 @@ use NormForm\AbstractNormForm;
  * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
  * @version 0.0.1
  */
-class Demo extends AbstractNormForm
+class Login extends AbstractNormForm
 {
     /**
      * Constructor for creating a new object. Use this to perform initializations of properties you need throughout your

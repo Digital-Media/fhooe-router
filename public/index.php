@@ -1,7 +1,7 @@
 <?php
 require "../vendor/autoload.php";
 
-use Examples\Demo;
+use Demo\Demo;
 use Router\Router;
 
 $route = Router::getRoute();
