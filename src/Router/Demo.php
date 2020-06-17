@@ -36,7 +36,7 @@ class Demo
      *
      * @return bool Returns true if validation was successful, otherwise false.
      */
-    protected function isValid(): bool
+    public function isValid(): bool
     {
         $params = $this->getBodyParams();
         if ($this->isEmptyPostField('firstname')) {
@@ -57,7 +57,7 @@ class Demo
      * received data is stored in result and passed on to the view. In more complex scenarios this would be the
      * place to add things to a database or perform other tasks before displaying the data.
      */
-    protected function business(): void
+    public function business(): void
     {
         $this->templateParameters['firstname'] = "";
         $this->templateParameters['lastname'] = "";
@@ -80,21 +80,12 @@ class Demo
      * (where POST was used).
      * @return bool Returns true if a form was submitted or false if it was an initial call.
      */
-    public static function getRoute(): array
+    public static function getRoute(): string
     {
 
-        $method = strip_tags($_SERVER["REQUEST_METHOD"]);
-        switch ($method) {
-            case "POST":
-                $route['method'] = "POST";
-                $route['route'] = strip_tags($_POST['route']);
-                break;
-            case "GET":
-                $route['method'] = "GET";
-                isset($_GET['route']) ? $route['route'] = strip_tags($_GET['route']) : $route['route'] = "normform" ;
-                break;
-        }
-        return $route;
+        $routingParams['method'] = strip_tags($_SERVER["REQUEST_METHOD"]);
+        $routingParams['route'] = strip_tags($_SERVER['REQUEST_URI']);
+        return $routingParams['method'] . " " . $routingParams['route'];
     }
 
     /**

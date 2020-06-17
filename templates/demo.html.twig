@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>NormForm-Skeleton</title>
+    <title>Routing-Skeleton</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,300,700">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css"
@@ -13,7 +13,7 @@
 <header class="Site-header">
     <div class="Header Header--small">
         <div class="Header-titles">
-            <h1 class="Header-title"><i class="far fa-file-alt"></i>NormForm</h1>
+            <h1 class="Header-title"><i class="fas fa-route"></i>Routing Demo</h1>
             <p class="Header-subtitle">Skeleton</p>
         </div>
     </div>
@@ -36,7 +36,7 @@
                     <p class="Status-message"><i class="fas fa-check"></i>{{ statusMessage }}</p>
                 </div>
             {% endif %}
-            <form action="{{ _server.SCRIPT_NAME }}" method="post">
+            <form action="/" method="post">
                 <div class="Grid Grid--gutters">
                     <div class="InputCombo Grid-full">
                         <label for="firstname" class="InputCombo-label">First Name*:</label>
@@ -51,9 +51,6 @@
                     <div class="InputCombo Grid-full">
                         <label for="message" class="InputCombo-label">Message:</label>
                         <textarea name="message" id="message" class="InputCombo-field">{{ message }}</textarea>
-                    </div>
-                    <div class="InputCombo Grid-full">
-                        <input type="hidden" name="route" value="normform">
                     </div>
                     <div class="Grid-full">
                         <button type="submit" class="Button">Send</button>
@@ -94,8 +91,14 @@
             <a href="mailto:wolfgang.hochleitner@fh-hagenberg.at">Wolfgang Hochleitner</a>.
         </p>
         <p class="Footer-version">
-            <i class="far fa-file-alt"></i>
-            <a href="https://github.com/Digital-Media/normform-skeleton">NormForm-Skeleton Version 1.1.2</a>
+            <a href="about">About</a>
+        </p>
+        <p class="Footer-version">
+            <a href="nixi">404</a>
+        </p>
+        <p class="Footer-version">
+            <i class="fas fa-route"></i>
+            <a href="https://github.com/Digital-Media/fhooe-router" target="_blank">Router-Skeleton Version 0.0.1</a>
         </p>
     </div>
 </footer>
