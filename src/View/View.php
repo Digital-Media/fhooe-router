@@ -1,6 +1,6 @@
 <?php
 
-namespace Router;
+namespace View;
 
 use Twig\Environment;
 use Twig\Error\LoaderError;

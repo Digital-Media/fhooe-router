@@ -1,9 +1,10 @@
 <?php
 require "../vendor/autoload.php";
 
-use Router\Demo;
+use Examples\Demo;
+use Router\Router;
 
-$route = Demo::getRoute();
+$route = Router::getRoute();
 switch ($route) {
     case 'GET /' :
         $demo = new Demo("demo.html.twig");
@@ -11,10 +12,7 @@ switch ($route) {
         break;
     case 'POST /' :
         $demo = new Demo("demo.html.twig");
-        if ($demo->isValid()) {
-            $demo->business();
-        };
-        $demo->show();
+        $demo->normForm();
         break;
     case '' :
         $demo = new Demo("demo.html.twig");
