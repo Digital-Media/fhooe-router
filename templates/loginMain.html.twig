@@ -1,0 +1,34 @@
+{% include "header.html.twig" %}
+{% include "navigation.html.twig" %}
+<main class="Site-content">
+    <section class="Section">
+        <div class="Container">
+            <h2 class="Section-heading">Login to PHPIntro</h2>
+            {% include "errorMessages.html.twig" %}
+            {% include "statusMessage.html.twig" %}
+            <form action="/login" method="post" enctype="multipart/form-data">
+                <div class="Grid Grid--gutters">
+                    <div class="InputCombo Grid-full">
+                        <label for="username" class="InputCombo-label">User Name*</label>
+                        <input type="text" id="username" name="username"
+                               value="{{ username }}" class="InputCombo-field">
+                    </div>
+                    <div class="InputCombo Grid-full">
+                        <label for="password" class="InputCombo-label">Password*</label>
+                        <input type="password" id="password" name="password" class="InputCombo-field">
+                    </div>
+                    <div class="Grid-full">
+                        <button type="submit" class="Button">Log me in</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    <section class="Section">
+        <div class="Container">
+            <h2 class="Section-heading">No Account?</h2>
+            <p>Register your PHPintro account <a href="/register">here.</a></p>
+        </div>
+    </section>
+</main>
+{% include "footer.html.twig" %}

@@ -1,0 +1,43 @@
+{% include "header.html.twig" %}
+{% include "navigation.html.twig" %}
+<main class="Site-content">
+    <section class="Section">
+        <div class="Container">
+            <h2 class="Section-heading">Register an PHPIntro Account</h2>
+            {% include "errorMessages.html.twig" %}
+            {% include "statusMessage.html.twig" %}
+            <form action="/register" method="post" enctype="multipart/form-data">
+                <div class="Grid Grid--gutters">
+                    <div class="InputCombo Grid-full">
+                        <label for="username" class="InputCombo-label">User Name*</label>
+                        <input type="text" id="username" name="username"
+                               value="{{ username }}" class="InputCombo-field">
+                    </div>
+                    <div class="InputCombo Grid-full">
+                        <label for="email" class="InputCombo-label">E-mail Address*</label>
+                        <input type="email" id="email" name="email"
+                               value="{{ email }}" class="InputCombo-field">
+                    </div>
+                    <div class="InputCombo Grid-cell">
+                        <label for="password" class="InputCombo-label">Password*</label>
+                        <input type="password" id="password" name="password" class="InputCombo-field">
+                    </div>
+                    <div class="InputCombo Grid-cell">
+                        <label for="passwordretype" class="InputCombo-label">Repeat Password*</label>
+                        <input type="password" id="passwordretype" name="passwordretype" class="InputCombo-field">
+                    </div>
+                    <div class="Grid-full">
+                        <button type="submit" class="Button">Create my account</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+    <section class="Section">
+        <div class="Container">
+            <h2 class="Section-heading">Already Registered?</h2>
+            <p>Use your existing PHPIntro account to login <a href="/login">here</a>.</p>
+        </div>
+    </section>
+</main>
+{% include "footer.html.twig" %}

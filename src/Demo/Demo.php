@@ -20,7 +20,7 @@ class Demo extends AbstractNormForm
      * @param $template string Holds the initial template name used for displaying the form.
      */
 
-    public function __construct($template)
+    public function __construct(string $template)
     {
         parent::__construct($template);
     }

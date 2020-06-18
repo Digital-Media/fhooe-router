@@ -1,67 +1,161 @@
 <?php
-
 namespace Exercises;
 
 use NormForm\AbstractNormForm;
+use View\View;
+use Demo\Utilities;
+use Router\Router;
 
 /**
- * A demo implementation for a HTML form
+ * The registration page of the IMAR image archive.
  *
- * @package FhooeRouter
- * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
- * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
- * @version 0.0.1
+ * This class enables users to create a new account for the IMAR system. By choosing a user name, providing an e-mail
+ * address and a password (as well as a repetition of the latter) a new user is created. Before adding the user to the
+ * list of existing accounts the system checks if user name and e-mail address are unique and if (simple) password
+ * criteria are met.
+ *
+ * @author  Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
+ * @author  Martin Harrer <martin.harrer@fh-hagenberg.at>
+ * @version 2017
  */
-class Register extends AbstractNormForm
+final class Register extends AbstractNormForm
 {
     /**
-     * Constructor for creating a new object. Use this to perform initializations of properties you need throughout your
-     * application, otherwise leave it as is. Do not remove the call to the parent constructor.
-     * @param $template string Holds the initial template name used for displaying the form.
+     * @var string USERNAME Form field constant that defines how the form field for holding the username is called
+     * (id/name).
      */
+    const USERNAME = "username";
 
-    public function __construct($template)
+    /**
+     * @var string EMAIL Form field constant that defines how the form field for holding the e-mail address is called
+     * (id/name).
+     */
+    const EMAIL = "email";
+
+    /**
+     * @var string PASSWORD1 Form field constant that defines how the form field for holding the password is called
+     * (id/name).
+     */
+    const PASSWORD = "password";
+
+    /**
+     * @var string PASSWORD2 Form field constant that defines how the form field for holding the password repetition is
+     * called (id/name).
+     */
+    const PASSWORD_RETYPE = "passwordretype";
+
+    /**
+     * @var string USER_ID Constant used to specify the name of the auto-increment key.
+     */
+    const USER_ID = "userid";
+
+    /**
+     * @var string USER_DATA_PATH The full path for the user meta data JSON file.
+     */
+    const USER_DATA_PATH = DATA_DIRECTORY . "userdata.json";
+
+    /**
+     * @var FileAccess $fileAccess The object handling all file access operations.
+     */
+    private $fileAccess;
+
+    /**
+     * Creates a new Register object based on AbstractNormForm. Takes a View object that holds the information about
+     * which template will be shown and which parameters (e.g. for form fields) are passed on to the template.
+     * The constructor needs to initialize the object for file handling.
+     *
+     * @param string   $template The default View object with information on what will be displayed.
+     */
+    public function __construct(string $template)
     {
         parent::__construct($template);
+
+        // TODO: Create a FileAccess object and assign it to $this->fileAccess;
+        // TODO: @see src/FAdemo.php for this
+
+        //%%register/construct
     }
 
     /**
-     * Validates the form submission. The criteria for this example are non-empty fields for first and last name.
-     * These are checked using isEmptyPostField() in two separate if-clauses.
-     * If a criterion is violated, an entry in errorMessages is created.
-     * The array holding these error messages is then added to the parameters of the current view. If no error
-     * messages where created, validation is seen as successful.
+     * Validates user input after submitting registration information. The function has to check if all fields
+     * were filled out and then checks for uniqueness of username and e-mail address. Email has to be a valid
+     * address. Passwords need to correspond to certain criteria and also match.
      *
-     * @return bool Returns true if validation was successful, otherwise false.
+     * @return bool Returns true if no errors occurred and therefore no error messages were set, otherwise false.
      */
-    public function isValid(): bool
+    protected function isValid(): bool
     {
-        $params = $this->getBodyParams();
-        if ($this->isEmptyPostField('firstname')) {
-            $this->errorMessages['firstname'] = "First name is required.";
-        }
-        if ($this->isEmptyPostField('lastname')) {
-            $this->errorMessages['lastname'] = "Last name is required.";
-        }
-        $this->templateParameters['firstname'] = $params['firstname'];
-        $this->templateParameters['lastname'] = $params['lastname'];
-        $this->templateParameters['message'] = $params['message'];
+        // TODO: The code for correct form validation goes here.
+        // TODO: Check for empty fields, correct e-mail and passwords and username
+        // TODO: implement and use isUnique() in this class to test uniqueness of email and username
+        // TODO: Look into src/Utilities.php to find Regex examples.
+        // TODO: You can either call this examples by Utilitis::method() or copy them to this class and adapt them
+        // TODO: When copying, make the method private instead of public static
+        // TODO: @see src/FAdemo.php for this
+
+        //%%register/isValid
+
         $this->templateParameters['errorMessages'] = $this->errorMessages;
 
         return (count($this->errorMessages) === 0);
     }
 
     /**
-     * Business logic method used to process the data that was used after a successful validation. In this example the
-     * received data is stored in result and passed on to the view. In more complex scenarios this would be the
-     * place to add things to a database or perform other tasks before displaying the data.
+     * This method is only called when the form input was validated successfully. It adds the newly entered user to the
+     * list of existing users and then forwards to the LOGIN page.
      */
-    public function business(): void
+    protected function business(): void
     {
-        $this->templateParameters['firstname'] = "";
-        $this->templateParameters['lastname'] = "";
-        $this->templateParameters['message'] = "";
-        $this->templateParameters['result'] = $_POST;
-        $this->templateParameters['statusMessage'] = "Processing successful!";
+        if ($this->addUser()) {
+            Router::redirectTo('/login');
+        } else {
+            $this->errorMessages["addingUser"] = "The user could not be added.";
+        }
+    }
+
+    /**
+     * Checks for uniqueness of a certain value in the $_POST array. This method is used to check if the user name or
+     * e-mail address are unique or already existing. Therefore the existing users are loaded and the array is searched
+     * for the supplied value.
+     *
+     * @param  string $name The name of the entry in the $_POST array.
+     * @return bool Returns true if no match is found, otherwise false.
+     */
+    private function isUnique(string $name): bool
+    {
+        // TODO: Check if the provided username or email is unique (meaning not already in the data).
+        // TODO: @see src/FAdemo.php for this. Use self::USER_DATA_PATH instead of self::TEST_DATA_PATH
+        // TODO: Read whole array and step throw it comparing each username or email with the entry in $_POST
+        // TODO: with foreach or use in_array() combined with array_column() see PHP Documentation
+        // TODO: Handle the special case, that the array is empty.
+
+        //##%%
+        return true;
+        //#%#%
+        //%%register/isUnique
+    }
+
+    /**
+     * Adds a new user to the list of existing users. An entry for the two-dimensional user array is created and values
+     * for user name, e-mail-address and password are taken from the values in $_POST. Additionally an auto-increment ID
+     * is generated and added as well in order to assign a unique user id. After the entry is created, the updated
+     * two-dimensional array is stored again in the JSON file.
+     *
+     * @return bool Returns true if the operation was successful, otherwise false.
+     */
+    private function addUser(): bool
+    {
+        // TODO: Add the user (ID, user name, e-mail, password) to the two-dimensional array and store it.
+        // TODO: @see src/FAdemo.php for this. Use self::USER_DATA_PATH instead of self::TEST_DATA_PATH
+        // TODO: add the fields userid, username, email and password
+        // TODO: use FileAccess::autoincrementID for userid
+        // TODO: don't use Utilities::sanitizeFilter for username (TWIG!),
+        // TODO: email is validated by isValid() with Regex, that doesn't allow XSS
+        // TODO: use password_hash() for the password
+
+        //##%%
+        return true;
+        //#%#%
+        //%%register/addUser
     }
 }
