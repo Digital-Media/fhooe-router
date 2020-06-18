@@ -1,4 +1,5 @@
 <?php
+
 namespace Demo;
 
 use NormForm\AbstractNormForm;
@@ -17,7 +18,7 @@ final class FAdemo extends AbstractNormForm
     /**
      * @var string USER_DATA_PATH The full path for the user meta data JSON file.
      */
-    const TEST_DATA_PATH = DATA_DIRECTORY . "testdata.json";
+    private const TEST_DATA_PATH = DATA_DIRECTORY . "testdata.json";
 
     /**
      * @var FileAccess $fileAccess The object handling all file access operations.

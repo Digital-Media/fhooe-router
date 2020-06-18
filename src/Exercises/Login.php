@@ -1,4 +1,5 @@
 <?php
+
 namespace Exercises;
 
 use NormForm\AbstractNormForm;
@@ -21,21 +22,9 @@ use Router\Router;
 final class Login extends AbstractNormForm
 {
     /**
-     * @var string USERNAME Form field constant that defines how the form field for holding the username is called
-     * (id/name).
-     */
-    const USERNAME = "username";
-
-    /**
-     * @var string PASSWORD Form field constant that defines how the form field for holding the password is called
-     * (id/name).
-     */
-    const PASSWORD = "password";
-
-    /**
      * @var string USER_DATA_PATH The full path for the user meta data JSON file.
      */
-    const USER_DATA_PATH = DATA_DIRECTORY . "userdata.json";
+    private const USER_DATA_PATH = DATA_DIRECTORY . "userdata.json";
 
     /**
      * @var FileAccess $fileAccess The object handling all file access operations.

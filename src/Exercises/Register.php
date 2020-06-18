@@ -1,4 +1,5 @@
 <?php
+
 namespace Exercises;
 
 use NormForm\AbstractNormForm;
@@ -23,12 +24,12 @@ final class Register extends AbstractNormForm
     /**
      * @var string USER_ID Constant used to specify the name of the auto-increment key.
      */
-    const USER_ID = "userid";
+    private const USER_ID = "userid";
 
     /**
      * @var string USER_DATA_PATH The full path for the user meta data JSON file.
      */
-    const USER_DATA_PATH = DATA_DIRECTORY . "userdata.json";
+    private const USER_DATA_PATH = DATA_DIRECTORY . "userdata.json";
 
     /**
      * @var FileAccess $fileAccess The object handling all file access operations.

@@ -1,4 +1,5 @@
 <?php
+
 namespace Exercises;
 
 use NormForm\AbstractNormForm;
