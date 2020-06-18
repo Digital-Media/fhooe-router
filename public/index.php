@@ -10,7 +10,7 @@ use Exercises\Contact;
 use Exercises\Login;
 use Exercises\Register;
 use Demo\FAdemo;
-
+use Demo\Solution;
 /**
  * Activate Debugging-Messages here for easier testing
  */
@@ -88,6 +88,14 @@ switch ($route) {
     case 'POST /fademo' :
         $fademo = new FAdemo("fademoMain.html.twig");
         $fademo->normForm();
+        break;
+    case 'GET /solution' :
+        $solution = new Solution("solutionMain.html.twig");
+        $solution->show();
+        break;
+    case 'POST /solution' :
+        $solution = new Solution("solutionMain.html.twig");
+        $solution->normForm();
         break;
     default:
         http_response_code(404);

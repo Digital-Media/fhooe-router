@@ -8,7 +8,7 @@
                 {% include "statusMessage.html.twig" %}
             </div>
             <h2 class="Section-heading">Create Solutions and Restore Templates</h2>
-            <form action="{{ _server.SCRIPT_NAME }}" method="post" enctype="multipart/form-data">
+            <form action="/solution" method="post" enctype="multipart/form-data">
                 {%  if classArray is defined %}
                 {% include "tablestyles.html.twig" %}
                 <table>
