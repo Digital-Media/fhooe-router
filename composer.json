@@ -8,7 +8,7 @@
     ],
     "type": "project",
     "require": {
-        "php": "^7.1",
+        "php": "^7.4",
         "twig/twig": "^3.0",
         "monolog/monolog": "^1.24"
     },

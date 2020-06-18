@@ -2,7 +2,7 @@
 namespace Exercises;
 
 use NormForm\AbstractNormForm;
-use View\View;
+use Demo\FileAccess;
 use Demo\Utilities;
 use Router\Router;
 
@@ -20,30 +20,6 @@ use Router\Router;
  */
 final class Register extends AbstractNormForm
 {
-    /**
-     * @var string USERNAME Form field constant that defines how the form field for holding the username is called
-     * (id/name).
-     */
-    const USERNAME = "username";
-
-    /**
-     * @var string EMAIL Form field constant that defines how the form field for holding the e-mail address is called
-     * (id/name).
-     */
-    const EMAIL = "email";
-
-    /**
-     * @var string PASSWORD1 Form field constant that defines how the form field for holding the password is called
-     * (id/name).
-     */
-    const PASSWORD = "password";
-
-    /**
-     * @var string PASSWORD2 Form field constant that defines how the form field for holding the password repetition is
-     * called (id/name).
-     */
-    const PASSWORD_RETYPE = "passwordretype";
-
     /**
      * @var string USER_ID Constant used to specify the name of the auto-increment key.
      */

@@ -2,7 +2,6 @@
 namespace Exercises;
 
 use NormForm\AbstractNormForm;
-use View\View;
 use Demo\FileAccess;
 use Demo\Utilities;
 use Router\Router;
