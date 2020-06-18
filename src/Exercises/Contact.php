@@ -15,40 +15,16 @@ use Demo\Utilities;
 final class Contact extends AbstractNormForm
 {
     /**
-     * constants for HTML attributes : <input name='pname' id='pname' ... >,
-     * <label for='pname' ... >, keys for $_POST[self::PNAME]..
-     *
-     * @var string SUBJECT Key for $_POST-Array
-     * @var string REQUEST Key for $_POST-Array
-     * @var string EMAIL Key for $_POST-Array
-     * @var string PRIORITY Key for $_POST-Array
-     */
-    const SUBJECT = "subject";
-    const REQUEST = "request";
-    const EMAIL = "email";
-    const PRIORITY = "priority";
-
-    /**
      * Contact Constructor.
      *
      * Uses Class View included by AbstractNormForm to define,
      * which template to use and the names of the HTML input fields
      * Calls the constructor of class AbstractNormform.
+     * @param $template string Holds the initial template name used for displaying the form.
      */
-    public function __construct()
+    public function __construct(string $template)
     {
-        $view = new View(
-            "contactMain.html.twig",
-            "../templates",
-            "../templates_c",
-            [
-                new PostParameter(Contact::SUBJECT),
-                new PostParameter(Contact::REQUEST),
-                new PostParameter(Contact::EMAIL),
-                new PostParameter(Contact::PRIORITY)
-            ]
-        );
-        parent::__construct($view);
+        parent::__construct($template);
     }
 
     /**
@@ -69,7 +45,8 @@ final class Contact extends AbstractNormForm
         // TODO to match the requirements of templates/contactMain.html.twig
         //%%contact/isValid
         // TODO keep the next two lines
-        $this->currentView->setParameter(new GenericParameter("errorMessages", $this->errorMessages));
+        $this->templateParameters['errorMessages'] = $this->errorMessages;
+
         return (count($this->errorMessages) === 0);
     }
 

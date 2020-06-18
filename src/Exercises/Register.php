@@ -64,7 +64,7 @@ final class Register extends AbstractNormForm
      * which template will be shown and which parameters (e.g. for form fields) are passed on to the template.
      * The constructor needs to initialize the object for file handling.
      *
-     * @param string   $template The default View object with information on what will be displayed.
+     * @param $template string Holds the initial template name used for displaying the form.
      */
     public function __construct(string $template)
     {

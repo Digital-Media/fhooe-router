@@ -5,6 +5,8 @@ session_start();
 
 use Router\Router;
 use Demo\Demo;
+use Exercises\Imprint;
+use Exercises\Contact;
 use Exercises\Login;
 use Exercises\Register;
 use Demo\FAdemo;
@@ -50,6 +52,18 @@ switch ($route) {
     case 'POST /demo' :
         $demo = new Demo("demo.html.twig");
         $demo->normForm();
+        break;
+    case 'GET /imprint' :
+        $imprint = new Imprint();
+        $imprint->show();
+        break;
+    case 'GET /contact' :
+        $contact = new Contact("contactMain.html.twig");
+        $contact->show();
+        break;
+    case 'POST /contact' :
+        $contact = new Contact("contactMain.html.twig");
+        $contact->normForm();
         break;
     case 'GET /login' :
         $login = new Login("loginMain.html.twig");
