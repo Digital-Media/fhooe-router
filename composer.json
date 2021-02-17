@@ -1,6 +1,6 @@
 {
     "name": "fhooe/fhooe-router",
-    "description": "An example application or skeleton for the for getting started with Routing.",
+    "description": "An example application or skeleton for getting started with basic routing in PHP.",
     "keywords": [
         "form processing",
         "example",
@@ -8,12 +8,12 @@
     ],
     "type": "project",
     "require": {
-        "php": "^7.4",
-        "twig/twig": "^3.0",
-        "monolog/monolog": "^1.24"
+        "php": ">=7.4",
+        "twig/twig": "^3.3",
+        "monolog/monolog": "^2.2"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.0"
+        "phpunit/phpunit": "^9.5"
     },
     "license": "MIT",
     "authors": [
