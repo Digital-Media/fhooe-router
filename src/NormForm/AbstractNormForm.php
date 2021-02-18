@@ -25,6 +25,11 @@ use View\View;
 abstract class AbstractNormForm
 {
     /**
+     * @var array The body paramters.
+     */
+    private array $params;
+
+    /**
      * Abstract method used to validate the form input. Must be implemented in the subclass.
      * @return bool Returns true if validation was successful, otherwise false.
      */
@@ -41,28 +46,28 @@ abstract class AbstractNormForm
      *
      * @var View
      */
-    protected $currentView;
+    protected View $currentView;
 
     /**
      * An array containing all error messages being set by isValid().
      *
      * @var array
      */
-    protected $errorMessages;
+    protected array $errorMessages;
 
     /**
      * An optional status message that can be set in business() when processing data was successful.
      *
      * @var string
      */
-    protected $statusMessage;
+    protected string $statusMessage;
 
     /**
      * Parameters, that are sent to the template
      *
      * @var array
      */
-    protected $templateParameters;
+    protected array $templateParameters;
 
     /**
      * Constructor for creating a new object. Use this to perform initializations of properties you need throughout your
@@ -70,7 +75,7 @@ abstract class AbstractNormForm
      * @param $template string Holds the initial template name used for displaying the form.
      */
 
-    public function __construct($template)
+    public function __construct(string $template)
     {
         $this->currentView = new View($template);
         $this->errorMessages = [];
