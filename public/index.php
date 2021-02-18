@@ -11,10 +11,12 @@ use Exercises\Login;
 use Exercises\Register;
 use Demo\FAdemo;
 use Demo\Solution;
+use View\View;
+
 /**
  * Activate Debugging-Messages here for easier testing
  */
-define('DEBUG', true);
+const DEBUG = true;
 if (DEBUG) {
     echo "<br>WARNING: Debugging is enabled. Set DEBUG to false for production use in " . __FILE__;
     echo "<br>Connect via SSH and send tail -f /var/log/apache2/error.log";
@@ -28,22 +30,20 @@ if (DEBUG) {
 /**
  * @var string DATA_DIRECTORY Sets the directory where the meta data (JSON files) for users is stored.
  */
-define("DATA_DIRECTORY", "../data/");
+const DATA_DIRECTORY = "../data/";
 
 // Login Handling
 
 /**
  * @var string IS_LOGGED_IN is set in SESSION-Array, if user is logged in successfully.
  */
-define("IS_LOGGED_IN", "isloggedin");
+const IS_LOGGED_IN = "isloggedin";
 
-$route = Router::getRoute();
+$route = Router::getRoute("/code/fhooe-router/public");
 switch ($route) {
     case 'GET /' :
-        $template = file("../templates/index.html.twig");
-        foreach ($template as $line)  {
-            echo $line;
-        }
+        $view = new View("index.html.twig");
+        $view->display();
         break;
     case 'GET /demo' :
         $demo = new Demo("demo.html.twig");
