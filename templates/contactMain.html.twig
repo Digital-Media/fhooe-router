@@ -6,7 +6,7 @@
             <h2 class="Section-heading">Contact</h2>
             {% include "errorMessages.html.twig" %}
             {% include "statusMessage.html.twig" %}
-            <form action="/contact" method="post" enctype="multipart/form-data">
+            <form action="{{ url_for('POST /contact') }}" method="post" enctype="multipart/form-data">
                 <div class="InputCombo Grid-full">
                     <label for="subject" class="InputCombo-label">Subject*</label>
                     <input type="text" id="subject" name="subject" value="{{ subject }}" class="InputCombo-field" placeholder="Please enter a Subject">

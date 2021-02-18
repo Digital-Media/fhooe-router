@@ -36,7 +36,7 @@
                     <p class="Status-message"><i class="fas fa-check"></i>{{ statusMessage }}</p>
                 </div>
             {% endif %}
-            <form action="/demo" method="post">
+            <form action="{{ url_for('POST /demo') }}" method="post">
                 <div class="Grid Grid--gutters">
                     <div class="InputCombo Grid-full">
                         <label for="firstname" class="InputCombo-label">First Name*:</label>
