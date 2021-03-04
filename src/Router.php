@@ -1,6 +1,6 @@
 <?php
 
-namespace Router;
+namespace Fhooe\Router;
 
 class Router
 {

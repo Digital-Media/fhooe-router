@@ -1,19 +1,15 @@
 {
-    "name": "fhooe/fhooe-router",
+    "name": "fhooe/router",
     "description": "An example application or skeleton for getting started with basic routing in PHP.",
     "keywords": [
-        "form processing",
+        "routing",
         "example",
         "education"
     ],
-    "type": "project",
+    "type": "library",
     "require": {
         "php": ">=7.4",
-        "twig/twig": "^3.3",
-        "monolog/monolog": "^2.2"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^9.5"
+        "ext-mbstring": "*"
     },
     "license": "MIT",
     "authors": [
@@ -31,13 +27,7 @@
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
-            "": ["src/", "tests/"]
+            "Fhooe\\Router\\": "src/"
         }
-    },
-    "scripts": {
-        "start": [
-            "echo 'Web server launched on http://localhost:8080'",
-            "php -S localhost:8080 -t public"
-        ]
     }
 }
