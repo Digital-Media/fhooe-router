@@ -64,15 +64,13 @@ class Router
     {
         $routeHandled = false;
         foreach ($this->routes as $route) {
-            if ($routeHandled = $this->handle($route)) {
+            if ($this->handle($route)) {
                 return;
             }
         }
 
         // If no route was handled, call the 404 callback
-        if (!$routeHandled) {
-            ($this->noRouteCallback)();
-        }
+        ($this->noRouteCallback)();
     }
 
     private function handle(array $route): bool
