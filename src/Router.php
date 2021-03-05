@@ -3,17 +3,38 @@
 namespace Fhooe\Router;
 
 use Closure;
+use Fhooe\Router\Exception\HandlerNotSetException;
 use InvalidArgumentException;
 
+/**
+ * A simple object oriented Router for educational purposes.
+ *
+ * This routing class can be used in two ways:
+ * 1.) Instantiate it, set routes with callbacks and run it.
+ * 2.) Use the static getRoute() methode to just retrieve the protocol and route and perform the logic yourself.
+ * @package Fhooe\Router
+ * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
+ * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
+ * @version 0.1.0
+ */
 class Router
 {
+    /**
+     * @var array The supported HTTP methods for this router.
+     */
     private const METHODS = [
         "GET",
         "POST"
     ];
 
+    /**
+     * @var array All routes and their associated callbacks.
+     */
     private array $routes;
 
+    /**
+     * @var Closure|null The 404 callback when no suitable other route is found.
+     */
     private ?Closure $noRouteCallback;
 
     /**
@@ -21,17 +42,30 @@ class Router
      */
     private static ?string $basePath = null;
 
+    /**
+     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback.
+     */
     public function __construct()
     {
         $this->routes = [];
         $this->noRouteCallback = null;
     }
 
+    /**
+     * Sets the base path if the application is not in the server's document root.
+     * @param string $basePath The base path. Specify without a trailing slash.
+     */
     public function setBasePath(string $basePath): void
     {
         self::$basePath = $basePath;
     }
 
+    /**
+     * Adds a route, consisting of a method and a URI pattern together with its callback handler.
+     * @param string $method The HTTP method of this route.
+     * @param string $pattern The routing pattern.
+     * @param Closure $callback The callback that is called when the route matches.
+     */
     public function addRoute(string $method, string $pattern, Closure $callback): void
     {
         if (in_array($method, self::METHODS)) {
@@ -45,28 +79,41 @@ class Router
         }
     }
 
+    /**
+     * Shorthand method for adding a new GET route.
+     * @param string $pattern The routing pattern.
+     * @param Closure $callback The callback that is called when the route matches.
+     */
     public function get(string $pattern, Closure $callback): void
     {
         $this->addRoute("GET", $pattern, $callback);
     }
 
+    /**
+     * Shorthand method for adding a new POST route.
+     * @param string $pattern The routing pattern.
+     * @param Closure $callback The callback that is called when the route matches.
+     */
     public function post(string $pattern, Closure $callback): void
     {
         $this->addRoute("POST", $pattern, $callback);
     }
 
-    public function set404(Closure $callback)
+    /**
+     * Sets the callback for the case that no route matches, a.k.a. 404.
+     * @param Closure $callback The 404 callback that is called when no route matches.
+     */
+    public function set404Callback(Closure $callback): void
     {
-        if (get_class($callback) === Closure::class) {
-            $this->noRouteCallback = $callback;
-        } else {
-            throw new InvalidArgumentException("Callback has to be an anonymous function of type Closure.");
-        }
+        $this->noRouteCallback = $callback;
     }
 
+    /**
+     * Execute the router. This loops over all the routes that have been added and invokes the associated callback if
+     * the method and pattern match. If there is no match, the 404 callback is invoked.
+     */
     public function run(): void
     {
-        $routeHandled = false;
         foreach ($this->routes as $route) {
             if ($this->handle($route)) {
                 return;
@@ -74,9 +121,20 @@ class Router
         }
 
         // If no route was handled, call the 404 callback
-        ($this->noRouteCallback)();
+        http_response_code(404);
+        if ($this->noRouteCallback) {
+            ($this->noRouteCallback)();
+        } else {
+            throw new HandlerNotSetException("404 Handler not set.");
+        }
     }
 
+    /**
+     * Handles a single route. The functions first matches the current request's method with the one of the route.
+     * If there is a match, the URI pattern is compared. In case of a match, the associated callback is invoked.
+     * @param array $route The route to handle.
+     * @return bool Returns true, if there was a match and the route was handled, otherwise false.
+     */
     private function handle(array $route): bool
     {
         $method = $_SERVER["REQUEST_METHOD"];
@@ -93,6 +151,11 @@ class Router
         return false;
     }
 
+    /**
+     * Returns the URI of the current request. If a base path is specified, it is removed first. Also potential
+     * parameters are filtered out so that a comparison with a route pattern is possible.
+     * @return string The current URI.
+     */
     private function getUri(): string
     {
         $uri = rawurldecode($_SERVER["REQUEST_URI"]);
@@ -144,20 +207,5 @@ class Router
         }
 
         return $url;
-    }
-
-    /**
-     * Performs a generic redirect using header(). GET-Parameters may optionally be supplied as an associative array.
-     * @param string $location The target location for the redirect.
-     * @param array|null $queryParameters GET-Parameters for HTTP-Request
-     */
-    public static function redirectTo(string $location, array $queryParameters = null): void
-    {
-        if (isset($queryParameters)) {
-            header("Location: $location" . "?" . http_build_query($queryParameters));
-        } else {
-            header("Location: $location");
-        }
-        exit();
     }
 }

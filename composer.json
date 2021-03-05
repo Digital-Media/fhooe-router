@@ -1,9 +1,9 @@
 {
     "name": "fhooe/router",
-    "description": "An example application or skeleton for getting started with basic routing in PHP.",
+    "description": "A simple object oriented Router for educational purposes.",
     "keywords": [
         "routing",
-        "example",
+        "php",
         "education"
     ],
     "type": "library",
