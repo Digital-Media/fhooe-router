@@ -2,12 +2,107 @@
 
 namespace Fhooe\Router;
 
+use Closure;
+use InvalidArgumentException;
+
 class Router
 {
+    private const METHODS = [
+        "GET",
+        "POST"
+    ];
+
+    private array $routes;
+
+    private ?Closure $noRouteCallback;
+
     /**
      * @var string|null The base path that is considered when this application is not in the server's document root.
      */
     private static ?string $basePath = null;
+
+    public function __construct()
+    {
+        $this->routes = [];
+        $this->noRouteCallback = null;
+    }
+
+    public function setBasePath(string $basePath): void
+    {
+        self::$basePath = $basePath;
+    }
+
+    public function addRoute(string $method, string $pattern, Closure $callback): void
+    {
+        if (in_array($method, self::METHODS)) {
+            $this->routes[] = [
+                "method" => $method,
+                "pattern" => $pattern,
+                "callback" => $callback
+            ];
+        } else {
+            throw new InvalidArgumentException("Method must be one of the following: " . implode("|", self::METHODS));
+        }
+    }
+
+    public function get(string $pattern, Closure $callback): void
+    {
+        $this->addRoute("GET", $pattern, $callback);
+    }
+
+    public function post(string $pattern, Closure $callback): void
+    {
+        $this->addRoute("POST", $pattern, $callback);
+    }
+
+    public function set404(Closure $callback)
+    {
+        $this->noRouteCallback = $callback;
+    }
+
+    public function run(): void
+    {
+        $routeHandled = false;
+        foreach ($this->routes as $route) {
+            if ($routeHandled = $this->handle($route)) {
+                return;
+            }
+        }
+
+        // If no route was handled, call the 404 callback
+        if (!$routeHandled) {
+            ($this->noRouteCallback)();
+        }
+    }
+
+    private function handle(array $route): bool
+    {
+        $method = $_SERVER["REQUEST_METHOD"];
+
+        if ($route["method"] === $method) {
+            $uri = $this->getUri();
+
+            if ($route["pattern"] === $uri) {
+                $route["callback"]();
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    private function getUri(): string
+    {
+        $uri = rawurldecode($_SERVER["REQUEST_URI"]);
+
+        // Remove the base path if there is one
+        if (self::$basePath) {
+            $uri = str_replace(self::$basePath, "", $uri);
+        }
+
+        // Remove potential URI parameters (everything after ?) and return
+        return strtok($uri, "?");
+    }
 
     /**
      * Returns the current route. The route is a combination of protocol and request URI. If a base path is specified,
@@ -35,7 +130,8 @@ class Router
      * @param string $route The full route specification consisting of protocol and URL.
      * @return string The correct URL for a route.
      */
-    public static function urlFor(string $route): string {
+    public static function urlFor(string $route): string
+    {
         $url = "";
         if ($spacePos = mb_strpos($route, " ")) {
             $url = mb_substr($route, $spacePos + 1);
