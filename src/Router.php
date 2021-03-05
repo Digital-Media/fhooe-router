@@ -57,7 +57,11 @@ class Router
 
     public function set404(Closure $callback)
     {
-        $this->noRouteCallback = $callback;
+        if (get_class($callback) === Closure::class) {
+            $this->noRouteCallback = $callback;
+        } else {
+            throw new InvalidArgumentException("Callback has to be an anonymous function of type Closure.");
+        }
     }
 
     public function run(): void
