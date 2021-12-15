@@ -7,20 +7,20 @@ use Fhooe\Router\Exception\HandlerNotSetException;
 use InvalidArgumentException;
 
 /**
- * A simple object oriented Router for educational purposes.
+ * A simple object-oriented Router for educational purposes.
  *
  * This routing class can be used in two ways:
- * 1.) Instantiate it, set routes with callbacks and run it.
- * 2.) Use the static getRoute() methode to just retrieve the protocol and route and perform the logic yourself.
+ * 1. Instantiate it, set routes with callbacks and run it.
+ * 2. Use the static getRoute() methode to just retrieve the protocol and route and perform the logic yourself.
  * @package Fhooe\Router
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
- * @version 0.1.0
+ * @since 0.1.0
  */
 class Router
 {
     /**
-     * @var array The supported HTTP methods for this router.
+     * @var array<string> The supported HTTP methods for this router.
      */
     private const METHODS = [
         "GET",
@@ -28,7 +28,7 @@ class Router
     ];
 
     /**
-     * @var array All routes and their associated callbacks.
+     * @var array<array<Closure|string>> All routes and their associated callbacks.
      */
     private array $routes;
 
@@ -132,7 +132,7 @@ class Router
     /**
      * Handles a single route. The functions first matches the current request's method with the one of the route.
      * If there is a match, the URI pattern is compared. In case of a match, the associated callback is invoked.
-     * @param array $route The route to handle.
+     * @param array<Closure|string> $route The route to handle.
      * @return bool Returns true, if there was a match and the route was handled, otherwise false.
      */
     private function handle(array $route): bool
@@ -143,8 +143,10 @@ class Router
             $uri = $this->getUri();
 
             if ($route["pattern"] === $uri) {
-                $route["callback"]();
-                return true;
+                if (is_callable($route["callback"])) {
+                    $route["callback"]();
+                    return true;
+                }
             }
             return false;
         }
@@ -152,7 +154,7 @@ class Router
     }
 
     /**
-     * Returns the URI of the current request. If a base path is specified, it is removed first. Also potential
+     * Returns the URI of the current request. If a base path is specified, it is removed first. Also, potential
      * parameters are filtered out so that a comparison with a route pattern is possible.
      * @return string The current URI.
      */
@@ -166,7 +168,12 @@ class Router
         }
 
         // Remove potential URI parameters (everything after ?) and return
-        return strtok($uri, "?");
+        $trimmedUri = strtok($uri, "?");
+
+        /* Since strtok can return false (if $uri was an empty string, which it should never be because
+           $_SERVER["REQUEST_URI"] should always have a value), return $uri if that was ever the case in order to have a
+           consistent string return value. */
+        return $trimmedUri ?: $uri;
     }
 
     /**
