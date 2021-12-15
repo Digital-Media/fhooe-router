@@ -9,7 +9,7 @@ use LogicException;
  * @package Fhooe\Router\Exception
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
- * @version 0.1.0
+ * @since 0.1.0
  */
 class HandlerNotSetException extends LogicException
 {
