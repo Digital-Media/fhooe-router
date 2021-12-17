@@ -7,6 +7,8 @@ namespace Fhooe\Router;
 use Closure;
 use Fhooe\Router\Exception\HandlerNotSetException;
 use InvalidArgumentException;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
 /**
  * A simple object-oriented Router for educational purposes.
@@ -21,6 +23,8 @@ use InvalidArgumentException;
  */
 class Router
 {
+    use LoggerAwareTrait;
+
     /**
      * @var array<string> The supported HTTP methods for this router.
      */
@@ -51,6 +55,7 @@ class Router
     {
         $this->routes = [];
         $this->noRouteCallback = null;
+        $this->logger = new NullLogger();
     }
 
     /**
