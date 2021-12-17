@@ -81,6 +81,7 @@ class Router
                 "pattern" => $pattern,
                 "callback" => $callback
             ];
+            $this->logger->info("Route added: " . $method . " " . $pattern);
         } else {
             throw new InvalidArgumentException("Method must be one of the following: " . implode("|", self::METHODS));
         }
@@ -113,6 +114,7 @@ class Router
     public function set404Callback(Closure $callback): void
     {
         $this->noRouteCallback = $callback;
+        $this->logger->info("404 callback set.");
     }
 
     /**
@@ -131,6 +133,7 @@ class Router
         http_response_code(404);
         if ($this->noRouteCallback) {
             ($this->noRouteCallback)();
+            $this->logger->info("No route match found. 404 callback executed.");
         } else {
             throw new HandlerNotSetException("404 Handler not set.");
         }
@@ -152,6 +155,9 @@ class Router
             if ($route["pattern"] === $uri) {
                 if (is_callable($route["callback"])) {
                     $route["callback"]();
+                    $this->logger->info(
+                        "Route match found: " . $route["method"] . " " . $route["pattern"] . ". Callback executed."
+                    );
                     return true;
                 }
             }
