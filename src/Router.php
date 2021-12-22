@@ -228,4 +228,14 @@ class Router
 
         return $url;
     }
+
+    /**
+     * Returns the base path if the application is not in the server's document root. If no base path is set, an empty
+     * string is returned.
+     * @return string The base path without a trailing slash or an empty string if no base path is set.
+     */
+    public static function getBasePath(): string
+    {
+        return self::$basePath ?? "";
+    }
 }
