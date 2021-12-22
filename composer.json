@@ -22,7 +22,8 @@
     ],
     "require": {
         "php": ">=7.4",
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "psr/log": "^3.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.2"

@@ -6,7 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2021-12-22
+
+### Added
+
+- The `Router` class is now PSR-3 compatible and builds upon the `Psr\Log` interfaces. The class uses the `LoggerAwareTrait` to instantiate a logger instance with `NullLogger`. See also [2: Add logging capabilities](https://github.com/Digital-Media/fhooe-router/issues/2).
+- Logging messages that inform users about added routes, route matches, a set 404 callback and an executed 404 callback.
+- Added a static `getBasePath()` method to retrieve the base path. This can be used in view templates to prepend the base path to URLs.
+
 ## [0.1.0] - 2021-12-16
+
 ### Added
 - Complete `Router` class with dynamic and static functionality.
 - Allowed setting routes for GET and POST protocols with patterns and invocable callbacks.
@@ -20,5 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added notes on Contributing.
 - Added this changelog.
 
-[Unreleased]: https://github.com/Digital-Media/fhooe-router/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/Digital-Media/fhooe-router/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Digital-Media/fhooe-router/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/Digital-Media/fhooe-router/releases/tag/v0.1.0

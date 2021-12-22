@@ -7,6 +7,8 @@ namespace Fhooe\Router;
 use Closure;
 use Fhooe\Router\Exception\HandlerNotSetException;
 use InvalidArgumentException;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\NullLogger;
 
 /**
  * A simple object-oriented Router for educational purposes.
@@ -21,6 +23,8 @@ use InvalidArgumentException;
  */
 class Router
 {
+    use LoggerAwareTrait;
+
     /**
      * @var array<string> The supported HTTP methods for this router.
      */
@@ -51,6 +55,7 @@ class Router
     {
         $this->routes = [];
         $this->noRouteCallback = null;
+        $this->logger = new NullLogger();
     }
 
     /**
@@ -76,6 +81,7 @@ class Router
                 "pattern" => $pattern,
                 "callback" => $callback
             ];
+            $this->logger->info("Route added: " . $method . " " . $pattern);
         } else {
             throw new InvalidArgumentException("Method must be one of the following: " . implode("|", self::METHODS));
         }
@@ -108,6 +114,7 @@ class Router
     public function set404Callback(Closure $callback): void
     {
         $this->noRouteCallback = $callback;
+        $this->logger->info("404 callback set.");
     }
 
     /**
@@ -126,6 +133,7 @@ class Router
         http_response_code(404);
         if ($this->noRouteCallback) {
             ($this->noRouteCallback)();
+            $this->logger->info("No route match found. 404 callback executed.");
         } else {
             throw new HandlerNotSetException("404 Handler not set.");
         }
@@ -147,6 +155,9 @@ class Router
             if ($route["pattern"] === $uri) {
                 if (is_callable($route["callback"])) {
                     $route["callback"]();
+                    $this->logger->info(
+                        "Route match found: " . $route["method"] . " " . $route["pattern"] . ". Callback executed."
+                    );
                     return true;
                 }
             }
@@ -216,5 +227,15 @@ class Router
         }
 
         return $url;
+    }
+
+    /**
+     * Returns the base path if the application is not in the server's document root. If no base path is set, an empty
+     * string is returned.
+     * @return string The base path without a trailing slash or an empty string if no base path is set.
+     */
+    public static function getBasePath(): string
+    {
+        return self::$basePath ?? "";
     }
 }
