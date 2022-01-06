@@ -238,4 +238,19 @@ class Router
     {
         return self::$basePath ?? "";
     }
+
+    /**
+     * Performs a generic redirect using header(). GET-Parameters may optionally be supplied as an associative array.
+     * @param string $location The target location for the redirect.
+     * @param array $queryParameters GET-Parameters for HTTP-Request
+     */
+    public static function redirectTo(string $location, array $queryParameters = null): void
+    {
+        if (isset($queryParameters)) {
+            header("Location: $location" . "?" . http_build_query($queryParameters));
+        } else {
+            header("Location: $location");
+        }
+        exit();
+    }
 }
