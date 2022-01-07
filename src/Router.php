@@ -210,18 +210,17 @@ class Router
     }
 
     /**
-     * Return the correct URL for a given route. If a base Path is set, it is appended to account for projects in
+     * Return the full URL for a given route. If a base path is set, it is prepended to account for projects in
      * subdirectories.
-     * @param string $route The full route specification consisting of protocol and URL.
-     * @return string The correct URL for a route.
+     * @param string $pattern The pattern of a route, has to start with a slash ("/").
+     * @return string The full URL for a route for this application.
      */
-    public static function urlFor(string $route): string
+    public static function urlFor(string $pattern): string
     {
-        $url = "";
-        if ($spacePos = mb_strpos($route, " ")) {
-            $url = mb_substr($route, $spacePos + 1);
-        }
+        // If we're in the document root, the URL is already our pattern.
+        $url = $pattern;
 
+        // If there's a base path (not in the document root) then we prepend it
         if (self::$basePath) {
             $url = self::$basePath . $url;
         }
