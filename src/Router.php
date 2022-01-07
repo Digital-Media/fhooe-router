@@ -15,7 +15,7 @@ use Psr\Log\NullLogger;
  *
  * This routing class can be used in two ways:
  * 1. Instantiate it, set routes with callbacks and run it.
- * 2. Use the static getRoute() methode to just retrieve the protocol and route and perform the logic yourself.
+ * 2. Use the static getRoute() methode to just retrieve the method and route and perform the logic yourself.
  * @package Fhooe\Router
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
@@ -190,7 +190,7 @@ class Router
     }
 
     /**
-     * Returns the current route. The route is a combination of protocol and request URI. If a base path is specified,
+     * Returns the current route. The route is a combination of method and request URI. If a base path is specified,
      * it is removed from the request URI before the route is returned.
      * @param string|null $basePath The base path that is to be removed from the route when the application is not in
      * the server's document root but in a subdirectory. Specify without a trailing slash.
@@ -239,17 +239,32 @@ class Router
     }
 
     /**
-     * Performs a generic redirect using header(). GET-Parameters may optionally be supplied as an associative array.
-     * @param string $location The target location for the redirect.
-     * @param array $queryParameters GET-Parameters for HTTP-Request
+     * Performs a generic redirect to a full URL using header(). GET-Parameters may optionally be supplied as an
+     * associative array.
+     * @param string $url The target URL for the redirect.
+     * @param array|null $queryParameters Optional GET parameters to be appended to the URL.
+     * @return void Returns nothing.
      */
-    public static function redirectTo(string $location, array $queryParameters = null): void
+    public static function redirect(string $url, ?array $queryParameters = null): void
     {
+        // Set response code 302 for a generic redirect.
+        http_response_code(302);
         if (isset($queryParameters)) {
-            header("Location: $location" . "?" . http_build_query($queryParameters));
+            header("Location: $url" . "?" . http_build_query($queryParameters));
         } else {
-            header("Location: $location");
+            header("Location: $url");
         }
         exit();
+    }
+
+    /**
+     * Perform a generic redirect to a route pattern. This pattern will then be converted to a full URL and the redirect
+     * will be performed.
+     * @param string $pattern The route pattern. Has to start with a slash ("/").
+     * @return void Returns nothing.
+     */
+    public static function redirectTo(string $pattern): void
+    {
+        self::redirect(self::urlFor($pattern));
     }
 }
