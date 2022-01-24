@@ -34,7 +34,7 @@ class Router
     ];
 
     /**
-     * @var array<array<Closure|string>> All routes and their associated callbacks.
+     * @var array<array{method: string, pattern: string, callback: Closure}> All routes and their associated callbacks.
      */
     private array $routes;
 
@@ -143,7 +143,7 @@ class Router
     /**
      * Handles a single route. The method first matches the current request's method with the one of the route.
      * If there is a match, the URI pattern is compared. In case of a match, the associated callback is invoked.
-     * @param array<Closure|string> $route The route to handle.
+     * @param array{method: string, pattern: string, callback: Closure} $route The route to handle.
      * @return bool Returns true, if there was a match and the route was handled, otherwise false.
      */
     private function handle(array $route): bool
@@ -244,7 +244,7 @@ class Router
      * Performs a generic redirect to a full URL using header(). GET-Parameters may optionally be supplied as an
      * associative array.
      * @param string $url The target URL for the redirect.
-     * @param array|null $queryParameters Optional GET parameters to be appended to the URL.
+     * @param array<string>|null $queryParameters Optional GET parameters to be appended to the URL.
      * @return void Returns nothing.
      */
     public static function redirect(string $url, ?array $queryParameters = null): void
