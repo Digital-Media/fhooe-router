@@ -15,7 +15,7 @@ use Psr\Log\NullLogger;
  *
  * This routing class can be used in two ways:
  * 1. Instantiate it, set routes with callbacks and run it.
- * 2. Use the static getRoute() methode to just retrieve the protocol and route and perform the logic yourself.
+ * 2. Use the static getRoute() method to just retrieve the HTTP method and route and perform the logic yourself.
  * @package Fhooe\Router
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
@@ -34,7 +34,7 @@ class Router
     ];
 
     /**
-     * @var array<array<Closure|string>> All routes and their associated callbacks.
+     * @var array<array{method: string, pattern: string, callback: Closure}> All routes and their associated callbacks.
      */
     private array $routes;
 
@@ -49,7 +49,8 @@ class Router
     private static ?string $basePath = null;
 
     /**
-     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback.
+     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback. The logger instance
+     * is also empty but can be added at any time.
      */
     public function __construct()
     {
@@ -140,9 +141,9 @@ class Router
     }
 
     /**
-     * Handles a single route. The functions first matches the current request's method with the one of the route.
+     * Handles a single route. The method first matches the current request's method with the one of the route.
      * If there is a match, the URI pattern is compared. In case of a match, the associated callback is invoked.
-     * @param array<Closure|string> $route The route to handle.
+     * @param array{method: string, pattern: string, callback: Closure} $route The route to handle.
      * @return bool Returns true, if there was a match and the route was handled, otherwise false.
      */
     private function handle(array $route): bool
@@ -190,8 +191,9 @@ class Router
     }
 
     /**
-     * Returns the current route. The route is a combination of protocol and request URI. If a base path is specified,
-     * it is removed from the request URI before the route is returned.
+     * Static router method. This simply returns the current route. The route is a combination of method and request
+     * URI. If a base path is specified, it is removed from the request URI before the route is returned.
+     * When using the static routing method, all logic handling the route has to be done separately.
      * @param string|null $basePath The base path that is to be removed from the route when the application is not in
      * the server's document root but in a subdirectory. Specify without a trailing slash.
      * @return string The current route.
@@ -210,18 +212,17 @@ class Router
     }
 
     /**
-     * Return the correct URL for a given route. If a base Path is set, it is appended to account for projects in
+     * Returns the full URL for a given route. If a base path is set, it is prepended to account for projects in
      * subdirectories.
-     * @param string $route The full route specification consisting of protocol and URL.
-     * @return string The correct URL for a route.
+     * @param string $pattern The pattern of a route, has to start with a slash ("/").
+     * @return string The full URL for a route for this application.
      */
-    public static function urlFor(string $route): string
+    public static function urlFor(string $pattern): string
     {
-        $url = "";
-        if ($spacePos = mb_strpos($route, " ")) {
-            $url = mb_substr($route, $spacePos + 1);
-        }
+        // If we're in the document root, the URL is already our pattern.
+        $url = $pattern;
 
+        // If there's a base path (not in the document root) then we prepend it
         if (self::$basePath) {
             $url = self::$basePath . $url;
         }
@@ -237,5 +238,35 @@ class Router
     public static function getBasePath(): string
     {
         return self::$basePath ?? "";
+    }
+
+    /**
+     * Performs a generic redirect to a full URL using header(). GET-Parameters may optionally be supplied as an
+     * associative array.
+     * @param string $url The target URL for the redirect.
+     * @param array<string>|null $queryParameters Optional GET parameters to be appended to the URL.
+     * @return void Returns nothing.
+     */
+    public static function redirect(string $url, ?array $queryParameters = null): void
+    {
+        // Set response code 302 for a generic redirect.
+        http_response_code(302);
+        if (isset($queryParameters)) {
+            header("Location: $url" . "?" . http_build_query($queryParameters));
+        } else {
+            header("Location: $url");
+        }
+        exit();
+    }
+
+    /**
+     * Perform a generic redirect to a route pattern. This pattern will then be converted to a full URL and the redirect
+     * will be performed.
+     * @param string $pattern The route pattern. Has to start with a slash ("/").
+     * @return void Returns nothing.
+     */
+    public static function redirectTo(string $pattern): void
+    {
+        self::redirect(self::urlFor($pattern));
     }
 }
