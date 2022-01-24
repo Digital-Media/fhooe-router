@@ -15,7 +15,7 @@ use Psr\Log\NullLogger;
  *
  * This routing class can be used in two ways:
  * 1. Instantiate it, set routes with callbacks and run it.
- * 2. Use the static getRoute() methode to just retrieve the method and route and perform the logic yourself.
+ * 2. Use the static getRoute() method to just retrieve the HTTP method and route and perform the logic yourself.
  * @package Fhooe\Router
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
@@ -49,7 +49,8 @@ class Router
     private static ?string $basePath = null;
 
     /**
-     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback.
+     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback. The logger instance
+     * is also empty but can be added at any time.
      */
     public function __construct()
     {
@@ -140,7 +141,7 @@ class Router
     }
 
     /**
-     * Handles a single route. The functions first matches the current request's method with the one of the route.
+     * Handles a single route. The method first matches the current request's method with the one of the route.
      * If there is a match, the URI pattern is compared. In case of a match, the associated callback is invoked.
      * @param array<Closure|string> $route The route to handle.
      * @return bool Returns true, if there was a match and the route was handled, otherwise false.
@@ -190,8 +191,9 @@ class Router
     }
 
     /**
-     * Returns the current route. The route is a combination of method and request URI. If a base path is specified,
-     * it is removed from the request URI before the route is returned.
+     * Static router method. This simply returns the current route. The route is a combination of method and request
+     * URI. If a base path is specified, it is removed from the request URI before the route is returned.
+     * When using the static routing method, all logic handling the route has to be done separately.
      * @param string|null $basePath The base path that is to be removed from the route when the application is not in
      * the server's document root but in a subdirectory. Specify without a trailing slash.
      * @return string The current route.
@@ -210,7 +212,7 @@ class Router
     }
 
     /**
-     * Return the full URL for a given route. If a base path is set, it is prepended to account for projects in
+     * Returns the full URL for a given route. If a base path is set, it is prepended to account for projects in
      * subdirectories.
      * @param string $pattern The pattern of a route, has to start with a slash ("/").
      * @return string The full URL for a route for this application.
