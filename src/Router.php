@@ -245,9 +245,9 @@ class Router
      * associative array.
      * @param string $url The target URL for the redirect.
      * @param array<string>|null $queryParameters Optional GET parameters to be appended to the URL.
-     * @return void Returns nothing.
+     * @return never Never returns due to the redirect.
      */
-    public static function redirect(string $url, ?array $queryParameters = null): void
+    public static function redirect(string $url, ?array $queryParameters = null): never
     {
         // Set response code 302 for a generic redirect.
         http_response_code(302);
@@ -263,9 +263,9 @@ class Router
      * Perform a generic redirect to a route pattern. This pattern will then be converted to a full URL and the redirect
      * will be performed.
      * @param string $pattern The route pattern. Has to start with a slash ("/").
-     * @return void Returns nothing.
+     * @return never Never returns due to the redirect.
      */
-    public static function redirectTo(string $pattern): void
+    public static function redirectTo(string $pattern): never
     {
         self::redirect(self::urlFor($pattern));
     }
