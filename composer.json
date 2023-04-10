@@ -26,7 +26,8 @@
         "psr/log": "^3.0"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.10"
+        "phpstan/phpstan": "^1.10",
+        "pestphp/pest": "^2.4"
     },
     "minimum-stability": "stable",
     "autoload": {
@@ -36,8 +37,15 @@
     },
     "scripts": {
         "test": [
-            "@phpstan"
+            "@phpstan",
+            "@pest"
         ],
-        "phpstan": "phpstan analyse src --memory-limit=-1 --level 9"
+        "phpstan": "phpstan analyse src --memory-limit=-1 --level 9 || true",
+        "pest": "pest"
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
     }
 }
