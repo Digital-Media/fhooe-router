@@ -207,6 +207,9 @@ class Router
             self::$basePath = $basePath;
             $routingParams["route"] = str_replace($basePath, "", $routingParams["route"]);
         }
+        else {
+            self::$basePath = null;
+        }
 
         return $routingParams["method"] . " " . $routingParams["route"];
     }
