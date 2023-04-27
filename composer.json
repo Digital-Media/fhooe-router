@@ -27,7 +27,7 @@
     },
     "require-dev": {
         "phpstan/phpstan": "^1.10",
-        "pestphp/pest": "^2.4"
+        "pestphp/pest": "^2.5"
     },
     "minimum-stability": "stable",
     "autoload": {
