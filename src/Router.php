@@ -44,9 +44,9 @@ class Router
     private ?Closure $noRouteCallback;
 
     /**
-     * @var string|null The base path that is considered when this application is not in the server's document root.
+     * @var string The base path that is considered when this application is not in the server's document root.
      */
-    private static ?string $basePath = null;
+    private string $basePath;
 
     /**
      * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback. The logger instance
@@ -54,6 +54,7 @@ class Router
      */
     public function __construct()
     {
+        $this->basePath = "";
         $this->routes = [];
         $this->noRouteCallback = null;
         $this->logger = new NullLogger();
@@ -65,7 +66,7 @@ class Router
      */
     public function setBasePath(string $basePath): void
     {
-        self::$basePath = $basePath;
+        $this->basePath = $basePath;
     }
 
     /**
@@ -155,7 +156,7 @@ class Router
 
             if ($route["pattern"] === $uri) {
                 if (is_callable($route["callback"])) {
-                    $route["callback"]();
+                    ($route["callback"])(...)->call($this);
                     $this->logger?->info(
                         "Route match found: " . $route["method"] . " " . $route["pattern"] . ". Callback executed."
                     );
@@ -177,8 +178,8 @@ class Router
         $uri = rawurldecode($_SERVER["REQUEST_URI"]);
 
         // Remove the base path if there is one
-        if (self::$basePath) {
-            $uri = str_replace(self::$basePath, "", $uri);
+        if ($this->basePath) {
+            $uri = str_replace($this->basePath, "", $uri);
         }
 
         // Remove potential URI parameters (everything after ?) and return
@@ -194,22 +195,22 @@ class Router
      * Static router method. This simply returns the current route. The route is a combination of method and request
      * URI. If a base path is specified, it is removed from the request URI before the route is returned.
      * When using the static routing method, all logic handling the route has to be done separately.
-     * @param string|null $basePath The base path that is to be removed from the route when the application is not in
+     * @param string $basePath The base path that is to be removed from the route when the application is not in
      * the server's document root but in a subdirectory. Specify without a trailing slash.
      * @return string The current route.
      */
-    public static function getRoute(?string $basePath = null): string
+    public static function getRoute(string $basePath = ""): string
     {
         $routingParams["method"] = strip_tags($_SERVER["REQUEST_METHOD"]);
         $routingParams["route"] = strip_tags($_SERVER["REQUEST_URI"]);
 
-        if ($basePath) {
-            self::$basePath = $basePath;
+        //if ($basePath) {
+        //    self::$basePath = $basePath;
             $routingParams["route"] = str_replace($basePath, "", $routingParams["route"]);
-        }
+        /*}
         else {
             self::$basePath = null;
-        }
+        }*/
 
         return $routingParams["method"] . " " . $routingParams["route"];
     }
@@ -220,14 +221,14 @@ class Router
      * @param string $pattern The pattern of a route, has to start with a slash ("/").
      * @return string The full URL for a route for this application.
      */
-    public static function urlFor(string $pattern): string
+    public function urlFor(string $pattern): string
     {
         // If we're in the document root, the URL is already our pattern.
         $url = $pattern;
 
         // If there's a base path (not in the document root) then we prepend it
-        if (self::$basePath) {
-            $url = self::$basePath . $url;
+        if ($this->basePath) {
+            $url = $this->basePath . $url;
         }
 
         return $url;
@@ -238,9 +239,9 @@ class Router
      * string is returned.
      * @return string The base path without a trailing slash or an empty string if no base path is set.
      */
-    public static function getBasePath(): string
+    public function getBasePath(): string
     {
-        return self::$basePath ?? "";
+        return $this->basePath ?? "";
     }
 
     /**
@@ -250,7 +251,7 @@ class Router
      * @param array<string>|null $queryParameters Optional GET parameters to be appended to the URL.
      * @return never Never returns due to the redirect.
      */
-    public static function redirect(string $url, ?array $queryParameters = null): never
+    public function redirect(string $url, ?array $queryParameters = null): never
     {
         // Set response code 302 for a generic redirect.
         http_response_code(302);
@@ -268,8 +269,8 @@ class Router
      * @param string $pattern The route pattern. Has to start with a slash ("/").
      * @return never Never returns due to the redirect.
      */
-    public static function redirectTo(string $pattern): never
+    public function redirectTo(string $pattern): never
     {
-        self::redirect(self::urlFor($pattern));
+        $this->redirect($this->urlFor($pattern));
     }
 }
