@@ -13,11 +13,6 @@
             "name": "Wolfgang Hochleitner",
             "email": "wolfgang.hochleitner@fh-hagenberg.at",
             "role": "Developer"
-        },
-        {
-            "name": "Martin Harrer",
-            "email": "martin.harrer@fh-hagenberg.at",
-            "role": "Developer"
         }
     ],
     "require": {
