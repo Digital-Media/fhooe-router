@@ -21,13 +21,13 @@
         }
     ],
     "require": {
-        "php": "^8.1",
+        "php": "^8.3",
         "ext-mbstring": "*",
         "psr/log": "^3.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^1.10",
-        "pestphp/pest": "^2.5"
+        "pestphp/pest": "^2.32"
     },
     "minimum-stability": "stable",
     "autoload": {
