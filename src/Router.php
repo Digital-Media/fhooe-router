@@ -18,7 +18,6 @@ use Psr\Log\NullLogger;
  * 2. Use the static getRoute() method to just retrieve the HTTP method and route and perform the logic yourself.
  * @package Fhooe\Router
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
- * @author Martin Harrer <martin.harrer@fh-hagenberg.at>
  * @since 0.1.0
  */
 class Router
@@ -28,7 +27,7 @@ class Router
     /**
      * @var array<string> The supported HTTP methods for this router.
      */
-    private const METHODS = [
+    private const array METHODS = [
         "GET",
         "POST"
     ];
