@@ -2,6 +2,9 @@
 
 use Fhooe\Router\Router;
 
-it ("creates a Router object", function () {
+/**
+ * Creates a Router object and checks if it is an instance of the Router class.
+ */
+it("creates a Router object", function () {
     expect(new Router())->toBeInstanceOf(Router::class);
 });

@@ -37,7 +37,7 @@ it("adds the GET route /test and runs it", function () {
 it("adds the GET route /test with a matching base path set and runs it", function () {
     $_SERVER["REQUEST_URI"] = "/some/basepath/test";
 
-    $this->router->set404Callback(function() {
+    $this->router->set404Callback(function () {
         echo "404";
     });
     $this->router->setBasePath("/some/basepath");
@@ -62,7 +62,7 @@ it("adds the GET route /test with a matching base path set and runs it", functio
 it("adds the GET route /test with a mismatching base path set and runs it", function () {
     $_SERVER["REQUEST_URI"] = "/some/path/test";
 
-    $this->router->set404Callback(function() {
+    $this->router->set404Callback(function () {
         echo "404";
     });
     $this->router->setBasePath("/some/basepath");
@@ -88,7 +88,7 @@ it("adds the POST route /test and runs it without a 404 handler", function () {
         echo "test";
     });
 
-    expect(fn () => $this->router->run())->toThrow(HandlerNotSetException::class, "404 Handler not set.");
+    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 Handler not set.");
 });
 
 /**
@@ -100,7 +100,7 @@ it("adds the GET route /other and runs it without a 404 handler", function () {
         echo "other";
     });
 
-    expect(fn () => $this->router->run())->toThrow(HandlerNotSetException::class, "404 Handler not set.");
+    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 Handler not set.");
 });
 
 /**
@@ -108,7 +108,7 @@ it("adds the GET route /other and runs it without a 404 handler", function () {
  * Adds the route POST /test and runs it. Expects the output of the 404 handler.
  */
 it("adds the POST route /test, sets a 404 handler and runs it", function () {
-    $this->router->set404Callback(function() {
+    $this->router->set404Callback(function () {
         echo "404";
     });
 
@@ -129,7 +129,7 @@ it("adds the POST route /test, sets a 404 handler and runs it", function () {
  * Adds the route GET /other and runs it. Expects the output of the 404 handler.
  */
 it("adds the GET route /other, sets a 404 handler and runs it", function () {
-    $this->router->set404Callback(function() {
+    $this->router->set404Callback(function () {
         echo "404";
     });
 
