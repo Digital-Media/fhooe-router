@@ -172,7 +172,7 @@ class Router
      * parameters are filtered out so that a comparison with a route pattern is possible.
      * @return string The current URI.
      */
-    private function getUri(): string
+    public function getUri(): string
     {
         $uri = rawurldecode($_SERVER["REQUEST_URI"]);
 
