@@ -6,7 +6,7 @@ namespace Fhooe\Router;
 
 use Closure;
 use Fhooe\Router\Exception\HandlerNotSetException;
-use InvalidArgumentException;
+use Fhooe\Router\Type\HttpMethod;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 
@@ -25,15 +25,8 @@ class Router
     use LoggerAwareTrait;
 
     /**
-     * @var array<string> The supported HTTP methods for this router.
-     */
-    private const array METHODS = [
-        "GET",
-        "POST"
-    ];
-
-    /**
-     * @var array<array{method: string, pattern: string, callback: Closure}> All routes and their associated callbacks.
+     * @var array<array{method: HttpMethod, pattern: string, callback: Closure}> All routes (methods and patterns)
+     * and their associated callbacks.
      */
     private array $routes;
 
@@ -70,22 +63,19 @@ class Router
 
     /**
      * Adds a route, consisting of a method and a URI pattern together with its callback handler.
-     * @param string $method The HTTP method of this route.
+     * @param HttpMethod $method The HTTP method of this route.
+     * Only GET and POST (as specified in the HttpMethod enum) are supported.
      * @param string $pattern The routing pattern.
      * @param Closure $callback The callback that is called when the route matches.
      */
-    public function addRoute(string $method, string $pattern, Closure $callback): void
+    public function addRoute(HttpMethod $method, string $pattern, Closure $callback): void
     {
-        if (in_array($method, self::METHODS)) {
-            $this->routes[] = [
-                "method" => $method,
-                "pattern" => $pattern,
-                "callback" => $callback
-            ];
-            $this->logger?->info("Route added: " . $method . " " . $pattern);
-        } else {
-            throw new InvalidArgumentException("Method must be one of the following: " . implode("|", self::METHODS));
-        }
+        $this->routes[] = [
+            "method" => $method,
+            "pattern" => $pattern,
+            "callback" => $callback
+        ];
+        $this->logger?->info("Route added: " . $method->name . " " . $pattern);
     }
 
     /**
@@ -95,7 +85,7 @@ class Router
      */
     public function get(string $pattern, Closure $callback): void
     {
-        $this->addRoute("GET", $pattern, $callback);
+        $this->addRoute(HttpMethod::GET, $pattern, $callback);
     }
 
     /**
@@ -105,7 +95,7 @@ class Router
      */
     public function post(string $pattern, Closure $callback): void
     {
-        $this->addRoute("POST", $pattern, $callback);
+        $this->addRoute(HttpMethod::POST, $pattern, $callback);
     }
 
     /**
@@ -143,21 +133,23 @@ class Router
     /**
      * Handles a single route. The method first matches the current request's method with the one of the route.
      * If there is a match, the URI pattern is compared. In case of a match, the associated callback is invoked.
-     * @param array{method: string, pattern: string, callback: Closure} $route The route to handle.
+     * @param array{method: HttpMethod, pattern: string, callback: Closure} $route The route to handle.
      * @return bool Returns true, if there was a match and the route was handled, otherwise false.
      */
     private function handle(array $route): bool
     {
         $method = $_SERVER["REQUEST_METHOD"];
 
-        if ($route["method"] === $method) {
+        if ($route["method"]->name === $method) {
             $uri = $this->getUri();
 
             if ($route["pattern"] === $uri) {
                 if (is_callable($route["callback"])) {
                     ($route["callback"])(...)->call($this);
                     $this->logger?->info(
-                        "Route match found: " . $route["method"] . " " . $route["pattern"] . ". Callback executed."
+                        "Route match found: " .
+                        $route["method"]->name . " " . $route["pattern"] .
+                        ". Callback executed."
                     );
                     return true;
                 }
