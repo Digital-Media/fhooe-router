@@ -1,4 +1,4 @@
-# <img src="https://raw.githubusercontent.com/Digital-Media/fhooe-router-skeleton/076902786d9e13145b315154b0ea30b6222e3055/views/images/fhooe-router-logo.svg" height="32" alt="The fhooe/router Logo: Three containers arrows going in different directions: left, up, and right.">fhooe/router
+# <img src="https://raw.githubusercontent.com/Digital-Media/fhooe-router-skeleton/076902786d9e13145b315154b0ea30b6222e3055/views/images/fhooe-router-logo.svg" height="32" alt="The fhooe/router Logo: Three containers arrows going in different directions: left, up, and right."> fhooe/router
 
 *fhooe/router* is a simple object-oriented router developed for PHP classes in the [Media Technology and Design](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/bachelor/media-technology-and-design/) program at the [University of Applied Sciences Upper Austria](https://www.fh-ooe.at/en/hagenberg-campus/). It is primarily designed for educational purposes (learning the concept of routing and object-oriented principles). Its functionality is limited by design (e.g., only GET and POST protocols are supported). Use it for "public" applications at your own risk.
 
@@ -78,6 +78,8 @@ Composer will create a project in the `path/to/install` directory.
            break;
    }
    ```
+
+The static method is intended primarily for quickly getting the route string. It offers less functionality, e.g., no reverse route resolution.
 
 ## Contributing
 
