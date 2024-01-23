@@ -191,30 +191,6 @@ class Router
     }
 
     /**
-     * Static router method. This simply returns the current route. The route is a combination of method and request
-     * URI. If a base path is specified, it is removed from the request URI before the route is returned.
-     * When using the static routing method, all logic handling the route has to be done separately.
-     * @param string $basePath The base path that is to be removed from the route when the application is not in
-     * the server's document root but in a subdirectory. Specify without a trailing slash.
-     * @return string The current route.
-     */
-    public static function getRoute(string $basePath = ""): string
-    {
-        $routingParams["method"] = strip_tags($_SERVER["REQUEST_METHOD"]);
-        $routingParams["route"] = strip_tags($_SERVER["REQUEST_URI"]);
-
-        //if ($basePath) {
-        //    self::$basePath = $basePath;
-            $routingParams["route"] = str_replace($basePath, "", $routingParams["route"]);
-        /*}
-        else {
-            self::$basePath = null;
-        }*/
-
-        return $routingParams["method"] . " " . $routingParams["route"];
-    }
-
-    /**
      * Returns the full URL for a given route. If a base path is set, it is prepended to account for projects in
      * subdirectories.
      * @param string $pattern The pattern of a route, has to start with a slash ("/").
@@ -271,5 +247,23 @@ class Router
     public function redirectTo(string $pattern): never
     {
         $this->redirect($this->urlFor($pattern));
+    }
+
+    /**
+     * Static router method. This simply returns the current route. The route is a combination of method and request
+     * URI. If a base path is specified, it is removed from the request URI before the route is returned.
+     * When using the static routing method, all logic handling the route has to be done separately.
+     * @param string $basePath The base path that is to be removed from the route when the application is not in
+     * the server's document root but in a subdirectory. Specify without a trailing slash.
+     * @return string The current route.
+     */
+    public static function getRoute(string $basePath = ""): string
+    {
+        $routingParams["method"] = strip_tags($_SERVER["REQUEST_METHOD"]);
+        $routingParams["route"] = strip_tags($_SERVER["REQUEST_URI"]);
+
+        $routingParams["route"] = str_replace($basePath, "", $routingParams["route"]);
+
+        return $routingParams["method"] . " " . $routingParams["route"];
     }
 }
