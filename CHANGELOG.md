@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Switched to PHP 8.3 as a minimum requirement.
 - Switched return type of `redirect()` and `redirectTo` to `never`.
+- `addRoute()` now accepts an enum `HttpMethod` instead of a string. This removes the necessity to check the validity of the input. If it's not a valid enum value, the interpreter throws a `TypeError`. Plus, it introduces enums to students.
 - Checked log calls for null safety.
 - `basePath` is now a property and not static anymore.
 - Class constants are now typed.
