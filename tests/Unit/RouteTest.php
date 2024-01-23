@@ -1,6 +1,11 @@
 <?php
 
+/**
+ * Tests for the instantiated router.
+ */
+
 use Fhooe\Router\Exception\HandlerNotSetException;
+use Fhooe\Router\Type\HttpMethod;
 use Fhooe\Router\Router;
 
 /**
@@ -18,7 +23,7 @@ beforeEach(function () {
  * Adds the route GET /test and runs it. Expects the output by that route callback.
  */
 it("adds the GET route /test and runs it", function () {
-    $this->router->addRoute("GET", "/test", function () {
+    $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test";
     });
 
@@ -42,7 +47,7 @@ it("adds the GET route /test with a matching base path set and runs it", functio
     });
     $this->router->setBasePath("/some/basepath");
 
-    $this->router->addRoute("GET", "/test", function () {
+    $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test";
     });
 
@@ -67,7 +72,7 @@ it("adds the GET route /test with a mismatching base path set and runs it", func
     });
     $this->router->setBasePath("/some/basepath");
 
-    $this->router->addRoute("GET", "/test", function () {
+    $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test";
     });
 
@@ -84,11 +89,11 @@ it("adds the GET route /test with a mismatching base path set and runs it", func
  * Adds the route POST /test and runs it. Expects a HandlerNotSetException since a 404 callback is missing.
  */
 it("adds the POST route /test and runs it without a 404 handler", function () {
-    $this->router->addRoute("POST", "/test", function () {
+    $this->router->addRoute(HttpMethod::POST, "/test", function () {
         echo "test";
     });
 
-    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 Handler not set.");
+    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set.");
 });
 
 /**
@@ -96,11 +101,11 @@ it("adds the POST route /test and runs it without a 404 handler", function () {
  * Adds the route GET /other and runs it. Expects a HandlerNotSetException since a 404 callback is missing.
  */
 it("adds the GET route /other and runs it without a 404 handler", function () {
-    $this->router->addRoute("GET", "/other", function () {
+    $this->router->addRoute(HttpMethod::GET, "/other", function () {
         echo "other";
     });
 
-    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 Handler not set.");
+    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set.");
 });
 
 /**
@@ -112,7 +117,7 @@ it("adds the POST route /test, sets a 404 handler and runs it", function () {
         echo "404";
     });
 
-    $this->router->addRoute("POST", "/test", function () {
+    $this->router->addRoute(HttpMethod::POST, "/test", function () {
         echo "test";
     });
 
@@ -133,7 +138,7 @@ it("adds the GET route /other, sets a 404 handler and runs it", function () {
         echo "404";
     });
 
-    $this->router->addRoute("GET", "/other", function () {
+    $this->router->addRoute(HttpMethod::GET, "/other", function () {
         echo "other";
     });
 
@@ -143,16 +148,4 @@ it("adds the GET route /other, sets a 404 handler and runs it", function () {
     ob_end_clean();
 
     expect($output)->toBe("404");
-});
-
-/**
- * Test adding a route with an unsupported method
- * Adds the route PUT /test. Expects an InvalidArgumentException since the method is not supported.
- */
-it("adds a route with an unsupported method", function () {
-    expect(function () {
-        $this->router->addRoute("PUT", "/test", function () {
-            echo "test";
-        });
-    })->toThrow(InvalidArgumentException::class);
 });

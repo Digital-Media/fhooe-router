@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Tests for object instantiation.
+ */
+
 use Fhooe\Router\Router;
 
 /**

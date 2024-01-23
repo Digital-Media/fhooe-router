@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Tests for the static router.
+ */
+
 use Fhooe\Router\Router;
 
 /**
