@@ -11,10 +11,10 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 
 /**
- * A simple object-oriented Router for educational purposes.
+ * A simple object-oriented router for educational purposes that can handle GET and POST requests.
  *
  * This routing class can be used in two ways:
- * 1. Instantiate it, set routes with callbacks and run it.
+ * 1. Instantiate it, set routes with callbacks and run it (recommended).
  * 2. Use the static getRoute() method to just retrieve the HTTP method and route and perform the logic yourself.
  * @package Fhooe\Router
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
@@ -136,7 +136,7 @@ class Router
             ($this->noRouteCallback)();
             $this->logger?->info("No route match found. 404 callback executed.");
         } else {
-            throw new HandlerNotSetException("404 Handler not set.");
+            throw new HandlerNotSetException("404 handler not set.");
         }
     }
 
@@ -220,7 +220,7 @@ class Router
     }
 
     /**
-     * Performs a generic redirect to a full URL using header(). GET-Parameters may optionally be supplied as an
+     * Performs a generic redirect to a full URL using header(). GET parameters may optionally be supplied as an
      * associative array.
      * @param string $url The target URL for the redirect.
      * @param array<string>|null $queryParameters Optional GET parameters to be appended to the URL.
