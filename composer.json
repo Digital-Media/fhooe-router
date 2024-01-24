@@ -1,13 +1,13 @@
 {
     "name": "fhooe/router",
-    "type": "library",
     "description": "A simple object-oriented Router for educational purposes.",
+    "license": "MIT",
+    "type": "library",
     "keywords": [
         "routing",
         "php",
         "education"
     ],
-    "license": "MIT",
     "authors": [
         {
             "name": "Wolfgang Hochleitner",
@@ -21,8 +21,8 @@
         "psr/log": "^3.0"
     },
     "require-dev": {
-        "phpstan/phpstan": "^1.10",
-        "pestphp/pest": "^2.32"
+        "pestphp/pest": "^2.32",
+        "phpstan/phpstan": "^1.10"
     },
     "minimum-stability": "stable",
     "autoload": {
@@ -30,17 +30,17 @@
             "Fhooe\\Router\\": "src/"
         }
     },
-    "scripts": {
-        "test": [
-            "@phpstan",
-            "@pest"
-        ],
-        "phpstan": "phpstan analyse src --memory-limit=-1 --level 9 || true",
-        "pest": "pest"
-    },
     "config": {
         "allow-plugins": {
             "pestphp/pest-plugin": true
         }
+    },
+    "scripts": {
+        "pest": "pest",
+        "phpstan": "phpstan analyse src --memory-limit=-1 --level 9 || true",
+        "test": [
+            "@phpstan",
+            "@pest"
+        ]
     }
 }
