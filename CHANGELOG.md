@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- `composer.lock` is now excluded from version control for more flexibility.
+
 ### Fixed
 
 ### Security
