@@ -1,6 +1,6 @@
 {
     "name": "fhooe/router",
-    "description": "A simple object-oriented Router for educational purposes.",
+    "description": "A simple object-oriented router for educational purposes.",
     "license": "MIT",
     "type": "library",
     "keywords": [
