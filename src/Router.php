@@ -65,8 +65,10 @@ class Router
      * Adds a route, consisting of a method and a URI pattern together with its callback handler.
      * @param HttpMethod $method The HTTP method of this route.
      * Only GET and POST (as specified in the HttpMethod enum) are supported.
-     * @param string $pattern The routing pattern.
-     * @param Closure $callback The callback that is called when the route matches.
+     * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
+     * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
+     * @param Closure $callback The callback that is called when the route matches. Parameter names
+     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
      */
     public function addRoute(HttpMethod $method, string $pattern, Closure $callback): void
     {
@@ -80,8 +82,10 @@ class Router
 
     /**
      * Shorthand method for adding a new GET route.
-     * @param string $pattern The routing pattern.
-     * @param Closure $callback The callback that is called when the route matches.
+     * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
+     * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
+     * @param Closure $callback The callback that is called when the route matches. Parameter names
+     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
      */
     public function get(string $pattern, Closure $callback): void
     {
@@ -90,8 +94,10 @@ class Router
 
     /**
      * Shorthand method for adding a new POST route.
-     * @param string $pattern The routing pattern.
-     * @param Closure $callback The callback that is called when the route matches.
+     * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
+     * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
+     * @param Closure $callback The callback that is called when the route matches. Parameter names
+     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
      */
     public function post(string $pattern, Closure $callback): void
     {
@@ -143,13 +149,24 @@ class Router
         if ($route["method"]->name === $method) {
             $uri = $this->getUri();
 
-            if ($route["pattern"] === $uri) {
+            // Convert route pattern to regex pattern
+            // First handle optional parts in square brackets, convert them to non-capturing groups
+            $pattern = preg_replace('/\[(.*?)\]/', '(?:$1)?', $route["pattern"]);
+            // Then handle parameters in curly braces, convert them to named capturing groups
+            $pattern = preg_replace('/\{([^}]+)\}/', '(?P<$1>[^/]+)', $pattern);
+            // Finally escape forward slashes
+            $pattern = str_replace('/', '\/', $pattern);
+            $pattern = '/^' . $pattern . '$/';
+
+            if (preg_match($pattern, $uri, $matches)) {
                 if (is_callable($route["callback"])) {
-                    ($route["callback"])(...)->call($this);
+                    // Extract named parameters, only keep the ones that have string array keys
+                    $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                    ($route["callback"])(...$params);
                     $this->logger?->info(
                         "Route match found: " .
                         $route["method"]->name . " " . $route["pattern"] .
-                        ". Callback executed."
+                        ". Callback executed with parameters: " . implode(", ", $params)
                     );
                     return true;
                 }
