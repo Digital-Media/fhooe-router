@@ -62,6 +62,7 @@ class Router
     public function setBasePath(string $basePath): void
     {
         $this->basePath = $basePath;
+        $this->logger->info("Base path set to: {basePath}", ["basePath" => $basePath]);
     }
 
     /**
@@ -80,10 +81,13 @@ class Router
             "pattern" => $pattern,
             "callback" => $callback
         ];
-        $this->logger->info("Route added: {method} {pattern}", [
-            'method' => $method->name,
-            'pattern' => $pattern
-        ]);
+        $this->logger->info(
+            "Route added: {method} {pattern}",
+            [
+                "method" => $method->name,
+                "pattern" => $pattern
+            ]
+        );
     }
 
     /**
@@ -156,9 +160,9 @@ class Router
             $uri = $this->getUri();
 
             // Convert route pattern to regex pattern
-            // First handle optional parts in square brackets, convert them to non-capturing groups
+            // First handle optional parts in square brackets
             $pattern = preg_replace('/\[(.*?)\]/', '(?:$1)?', $route["pattern"]);
-            // Then handle parameters in curly braces, convert them to named capturing groups
+            // Then handle parameters in curly braces
             $pattern = preg_replace('/\{([^}]+)\}/', '(?P<$1>[^/]+)', $pattern);
             // Finally escape forward slashes
             $pattern = str_replace('/', '\/', $pattern);
@@ -166,17 +170,18 @@ class Router
 
             if (preg_match($pattern, $uri, $matches)) {
                 if (is_callable($route["callback"])) {
-                    // Extract named parameters, only keep the ones that have string array keys
+                    // Extract named parameters
                     $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
                     
                     // Execute callback with parameters
                     ($route["callback"])(...$params);
                     $this->logger->info(
-                        "Route match found: {method} {pattern}. Callback executed with parameters: {params}",
+                        "Route match found: {method} {pattern} (called URL: {uri}). Callback parameters: {params}",
                         [
-                            'method' => $route["method"]->name,
-                            'pattern' => $route["pattern"],
-                            'params' => implode(", ", $params)
+                            "method" => $route["method"]->name,
+                            "pattern" => $route["pattern"],
+                            "uri" => $uri,
+                            "params" => implode(", ", $params)
                         ]
                     );
                     return true;
