@@ -181,7 +181,7 @@ class Router
                             "method" => $route["method"]->name,
                             "pattern" => $route["pattern"],
                             "uri" => $uri,
-                            "params" => implode(", ", $params)
+                            "params" => implode(", ", array_map(fn($key, $value) => "$key => $value", array_keys($params), $params))
                         ]
                     );
                     return true;
