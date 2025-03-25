@@ -6,6 +6,7 @@ namespace Fhooe\Router;
 
 use Closure;
 use Fhooe\Router\Exception\HandlerNotSetException;
+use Fhooe\Router\Exception\RouteAlreadyExistsException;
 use Fhooe\Router\Type\HttpMethod;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -73,9 +74,19 @@ class Router
      * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
      * @param Closure $callback The callback that is called when the route matches. Parameter names
      * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function addRoute(HttpMethod $method, string $pattern, Closure $callback): void
     {
+        // Check for existing route with same method and pattern
+        foreach ($this->routes as $route) {
+            if ($route["method"] === $method && $route["pattern"] === $pattern) {
+                throw new RouteAlreadyExistsException(
+                    "A route with method {$method->name} and pattern '$pattern' already exists."
+                );
+            }
+        }
+
         $this->routes[] = [
             "method" => $method,
             "pattern" => $pattern,
@@ -96,6 +107,7 @@ class Router
      * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
      * @param Closure $callback The callback that is called when the route matches. Parameter names
      * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function get(string $pattern, Closure $callback): void
     {
@@ -108,6 +120,7 @@ class Router
      * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
      * @param Closure $callback The callback that is called when the route matches. Parameter names
      * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function post(string $pattern, Closure $callback): void
     {
