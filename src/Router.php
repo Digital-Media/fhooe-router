@@ -179,25 +179,23 @@ class Router
             $pattern = '/^' . $pattern . '$/';
 
             if (preg_match($pattern, $uri, $matches)) {
-                if (is_callable($route["callback"])) {
-                    // Extract named parameters
-                    $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
-                    
-                    // Log the route match before executing the callback
-                    $this->logger->info(
-                        "Route match found: {method} {pattern} (called URL: {uri}). Callback parameters: {params}",
-                        [
-                            "method" => $route["method"]->name,
-                            "pattern" => $route["pattern"],
-                            "uri" => $uri,
-                            "params" => implode(", ", array_map(fn($key, $value) => "$key => $value", array_keys($params), $params))
-                        ]
-                    );
-                    
-                    // Execute callback with parameters
-                    ($route["callback"])(...$params);
-                    return true;
-                }
+                // Extract named parameters
+                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                
+                // Log the route match before executing the callback
+                $this->logger->info(
+                    "Route match found: {method} {pattern} (called URL: {uri}). Callback parameters: {params}",
+                    [
+                        "method" => $route["method"]->name,
+                        "pattern" => $route["pattern"],
+                        "uri" => $uri,
+                        "params" => implode(", ", array_map(fn($key, $value) => "$key => $value", array_keys($params), $params))
+                    ]
+                );
+                
+                // Execute callback with parameters
+                ($route["callback"])(...$params);
+                return true;
             }
             return false;
         }
