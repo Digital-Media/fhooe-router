@@ -172,8 +172,16 @@ class Router
             // Convert route pattern to regex pattern
             // First handle optional parts in square brackets
             $pattern = preg_replace('/\[(.*?)\]/', '(?:$1)?', $route["pattern"]);
+            // Guard: preg_replace can return null on error, which would cause issues in subsequent operations
+            if ($pattern === null) {
+                return false;
+            }
             // Then handle parameters in curly braces
             $pattern = preg_replace('/\{([^}]+)\}/', '(?P<$1>[^/]+)', $pattern);
+            // Guard: Second preg_replace can also return null on error
+            if ($pattern === null) {
+                return false;
+            }
             // Finally escape forward slashes
             $pattern = str_replace('/', '\/', $pattern);
             $pattern = '/^' . $pattern . '$/';
@@ -209,6 +217,10 @@ class Router
      */
     public function getUri(): string
     {
+        // Guard: $_SERVER["REQUEST_URI"] might not be set or might not be a string
+        if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
+            return "";
+        }
         $uri = rawurldecode($_SERVER["REQUEST_URI"]);
 
         // Remove the base path if there is one
@@ -219,9 +231,8 @@ class Router
         // Remove potential URI parameters (everything after ?) and return
         $trimmedUri = strtok($uri, "?");
 
-        /* Since strtok can return false (if $uri was an empty string, which it should never be because
-           $_SERVER["REQUEST_URI"] should always have a value), return $uri if that was ever the case in order to have a
-           consistent string return value. */
+        /* Since strtok can return false if the input string is empty (which can happen even with a valid REQUEST_URI),
+           we use the null coalescing operator to return the original URI in that case to ensure a consistent string return value. */
         return $trimmedUri ?: $uri;
     }
 
@@ -294,6 +305,10 @@ class Router
      */
     public static function getRoute(string $basePath = ""): string
     {
+        // Guard: $_SERVER["REQUEST_URI"] might not be set or might not be a string
+        if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
+            return "";
+        }
         $uri = rawurldecode($_SERVER["REQUEST_URI"]);
 
         // Remove the base path if there is one
@@ -304,9 +319,8 @@ class Router
         // Remove potential URI parameters (everything after ?) and return
         $trimmedUri = strtok($uri, "?");
 
-        /* Since strtok can return false (if $uri was an empty string, which it should never be because
-           $_SERVER["REQUEST_URI"] should always have a value), return $uri if that was ever the case in order to have a
-           consistent string return value. */
+        /* Since strtok can return false if the input string is empty (which can happen even with a valid REQUEST_URI),
+           we use the null coalescing operator to return the original URI in that case to ensure a consistent string return value. */
         return $_SERVER["REQUEST_METHOD"] . " " . ($trimmedUri ?: $uri);
     }
 }
