@@ -7,7 +7,7 @@ namespace Fhooe\Router;
 use Closure;
 use Fhooe\Router\Exception\HandlerNotSetException;
 use Fhooe\Router\Type\HttpMethod;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -22,8 +22,6 @@ use Psr\Log\NullLogger;
  */
 class Router
 {
-    use LoggerAwareTrait;
-
     /**
      * @var array<array{method: HttpMethod, pattern: string, callback: Closure}> All routes (methods and patterns)
      * and their associated callbacks.
@@ -41,15 +39,20 @@ class Router
     private string $basePath;
 
     /**
-     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback. The logger instance
-     * is also empty but can be added at any time.
+     * @var LoggerInterface The logger instance used for logging router events.
      */
-    public function __construct()
+    private LoggerInterface $logger;
+
+    /**
+     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback.
+     * @param LoggerInterface|null $logger Optional logger instance. If not provided, a NullLogger will be used.
+     */
+    public function __construct(?LoggerInterface $logger = null)
     {
         $this->basePath = "";
         $this->routes = [];
         $this->noRouteCallback = null;
-        $this->logger = new NullLogger();
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -77,7 +80,10 @@ class Router
             "pattern" => $pattern,
             "callback" => $callback
         ];
-        $this->logger?->info("Route added: " . $method->name . " " . $pattern);
+        $this->logger->info("Route added: {method} {pattern}", [
+            'method' => $method->name,
+            'pattern' => $pattern
+        ]);
     }
 
     /**
@@ -111,7 +117,7 @@ class Router
     public function set404Callback(Closure $callback): void
     {
         $this->noRouteCallback = $callback;
-        $this->logger?->info("404 callback set.");
+        $this->logger->info("404 callback set.");
     }
 
     /**
@@ -130,7 +136,7 @@ class Router
         http_response_code(404);
         if ($this->noRouteCallback) {
             ($this->noRouteCallback)();
-            $this->logger?->info("No route match found. 404 callback executed.");
+            $this->logger->info("No route match found. 404 callback executed.");
         } else {
             throw new HandlerNotSetException("404 handler not set.");
         }
@@ -162,11 +168,16 @@ class Router
                 if (is_callable($route["callback"])) {
                     // Extract named parameters, only keep the ones that have string array keys
                     $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                    
+                    // Execute callback with parameters
                     ($route["callback"])(...$params);
-                    $this->logger?->info(
-                        "Route match found: " .
-                        $route["method"]->name . " " . $route["pattern"] .
-                        ". Callback executed with parameters: " . implode(", ", $params)
+                    $this->logger->info(
+                        "Route match found: {method} {pattern}. Callback executed with parameters: {params}",
+                        [
+                            'method' => $route["method"]->name,
+                            'pattern' => $route["pattern"],
+                            'params' => implode(", ", $params)
+                        ]
                     );
                     return true;
                 }
@@ -268,11 +279,19 @@ class Router
      */
     public static function getRoute(string $basePath = ""): string
     {
-        $routingParams["method"] = strip_tags($_SERVER["REQUEST_METHOD"]);
-        $routingParams["route"] = strip_tags($_SERVER["REQUEST_URI"]);
+        $uri = rawurldecode($_SERVER["REQUEST_URI"]);
 
-        $routingParams["route"] = str_replace($basePath, "", $routingParams["route"]);
+        // Remove the base path if there is one
+        if ($basePath) {
+            $uri = str_replace($basePath, "", $uri);
+        }
 
-        return $routingParams["method"] . " " . $routingParams["route"];
+        // Remove potential URI parameters (everything after ?) and return
+        $trimmedUri = strtok($uri, "?");
+
+        /* Since strtok can return false (if $uri was an empty string, which it should never be because
+           $_SERVER["REQUEST_URI"] should always have a value), return $uri if that was ever the case in order to have a
+           consistent string return value. */
+        return $_SERVER["REQUEST_METHOD"] . " " . ($trimmedUri ?: $uri);
     }
 }
