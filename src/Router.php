@@ -27,17 +27,17 @@ class Router
      * @var array<array{method: HttpMethod, pattern: string, callback: Closure}> All routes (methods and patterns)
      * and their associated callbacks.
      */
-    private array $routes;
+    private array $routes = [];
 
     /**
      * @var Closure|null The 404 callback when no suitable other route is found.
      */
-    private ?Closure $noRouteCallback;
+    private ?Closure $noRouteCallback = null;
 
     /**
      * @var string The base path that is considered when this application is not in the server's document root.
      */
-    private string $basePath;
+    private string $basePath = "";
 
     /**
      * @var LoggerInterface The logger instance used for logging router events.
@@ -50,9 +50,6 @@ class Router
      */
     public function __construct(?LoggerInterface $logger = null)
     {
-        $this->basePath = "";
-        $this->routes = [];
-        $this->noRouteCallback = null;
         $this->logger = $logger ?? new NullLogger();
     }
 
