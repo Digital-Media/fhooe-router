@@ -223,9 +223,9 @@ class Router
         if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
             return "/";
         }
-        
+
         $uri = rawurldecode($_SERVER["REQUEST_URI"]);
-        
+
         // Remove query string if present
         if (($pos = strpos($uri, "?")) !== false) {
             $uri = substr($uri, 0, $pos);
@@ -301,32 +301,34 @@ class Router
     }
 
     /**
-     * Static router method. This simply returns the current route. The route is a combination of method and request
-     * URI. If a base path is specified, it is removed from the request URI before the route is returned.
-     * When using the static routing method, all logic handling the route has to be done separately.
-     * @param string $basePath The base path that is to be removed from the route when the application is not in
-     * the server's document root but in a subdirectory. Specify without a trailing slash.
+     * Returns the current route as a string in the format "METHOD /path".
+     * @param string $basePath The base path to remove from the URI.
      * @return string The current route.
      */
     public static function getRoute(string $basePath = ""): string
     {
-        // Guard: $_SERVER["REQUEST_URI"] might not be set or might not be a string
+        // Guard: $_SERVER["REQUEST_URI"] must be set and be a string, otherwise "/" is returned as default value
         if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
-            return "";
+            return $_SERVER["REQUEST_METHOD"] . " /";
         }
+
         $uri = rawurldecode($_SERVER["REQUEST_URI"]);
 
-        // Remove the base path if there is one
-        if ($basePath) {
-            $uri = str_replace($basePath, "", $uri);
+        // Remove query string if present
+        if (($pos = strpos($uri, "?")) !== false) {
+            $uri = substr($uri, 0, $pos);
         }
 
-        // Remove potential URI parameters (everything after ?) and return
-        $trimmedUri = strtok($uri, "?");
+        // Remove base path if set
+        if ($basePath !== "") {
+            $uri = substr($uri, strlen($basePath));
+        }
 
-        /* Since strtok can return false if the input string is empty (which can happen even with a valid REQUEST_URI),
-           we use the null coalescing operator to return the original URI in that case to ensure a consistent string
-           return value. */
-        return $_SERVER["REQUEST_METHOD"] . " " . ($trimmedUri ?: $uri);
+        // Ensure URI starts with /
+        if (empty($uri)) {
+            $uri = "/";
+        }
+
+        return $_SERVER["REQUEST_METHOD"] . " " . $uri;
     }
 }
