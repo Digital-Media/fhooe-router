@@ -21,9 +21,10 @@
         "psr/log": "^3.0"
     },
     "require-dev": {
+        "ergebnis/composer-normalize": "^2.45",
+        "mockery/mockery": "^1.6",
         "pestphp/pest": "^3.7",
-        "phpstan/phpstan": "^2.1",
-        "mockery/mockery": "^1.6"
+        "phpstan/phpstan": "^2.1"
     },
     "minimum-stability": "stable",
     "autoload": {
@@ -33,6 +34,7 @@
     },
     "config": {
         "allow-plugins": {
+            "ergebnis/composer-normalize": true,
             "pestphp/pest-plugin": true
         }
     },
