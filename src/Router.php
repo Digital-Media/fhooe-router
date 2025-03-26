@@ -219,24 +219,26 @@ class Router
      */
     public function getUri(): string
     {
-        // Guard: $_SERVER["REQUEST_URI"] might not be set or might not be a string
+        // Guard: $_SERVER["REQUEST_URI"] must be set and be a string, otherwise "/" is returned as default value
         if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
-            return "";
+            return "/";
         }
+        
         $uri = rawurldecode($_SERVER["REQUEST_URI"]);
-
-        // Remove the base path if there is one
-        if ($this->basePath) {
-            $uri = str_replace($this->basePath, "", $uri);
+        
+        // Remove query string if present
+        if (($pos = strpos($uri, "?")) !== false) {
+            $uri = substr($uri, 0, $pos);
         }
-
-        // Remove potential URI parameters (everything after ?) and return
-        $trimmedUri = strtok($uri, "?");
-
-        /* Since strtok can return false if the input string is empty (which can happen even with a valid REQUEST_URI),
-           we use the null coalescing operator to return the original URI in that case to ensure a consistent string
-           return value. */
-        return $trimmedUri ?: $uri;
+        // Remove base path if set
+        if ($this->basePath !== "") {
+            $uri = substr($uri, strlen($this->basePath));
+        }
+        // Ensure URI starts with /
+        if (empty($uri)) {
+            $uri = "/";
+        }
+        return $uri;
     }
 
     /**
