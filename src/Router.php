@@ -79,7 +79,7 @@ class Router
         foreach ($this->routes as $route) {
             if ($route["method"] === $method && $route["pattern"] === $pattern) {
                 throw new RouteAlreadyExistsException(
-                    "A route with method {$method->name} and pattern '$pattern' already exists."
+                    "A route with method $method->name and pattern '$pattern' already exists.",
                 );
             }
         }
@@ -87,14 +87,14 @@ class Router
         $this->routes[] = [
             "method" => $method,
             "pattern" => $pattern,
-            "callback" => $callback
+            "callback" => $callback,
         ];
         $this->logger->info(
             "Route added: {method} {pattern}",
             [
                 "method" => $method->name,
-                "pattern" => $pattern
-            ]
+                "pattern" => $pattern,
+            ],
         );
     }
 
@@ -140,10 +140,9 @@ class Router
      */
     public function run(): void
     {
-        foreach ($this->routes as $route) {
-            if ($this->handle($route)) {
-                return;
-            }
+        // Loop over all routes and check if one of them matches (one callback returns true)
+        if (array_any($this->routes, fn($route) => $this->handle($route))) {
+            return;
         }
 
         // If no route was handled, call the 404 callback
@@ -171,13 +170,13 @@ class Router
 
             // Convert route pattern to regex pattern
             // First handle optional parts in square brackets
-            $pattern = preg_replace('/\[(.*?)\]/', '(?:$1)?', $route["pattern"]);
+            $pattern = preg_replace('/\[(.*?)]/', '(?:$1)?', $route["pattern"]);
             // Guard: preg_replace can return null on error, which would cause issues in subsequent operations
             if ($pattern === null) {
                 return false;
             }
             // Then handle parameters in curly braces
-            $pattern = preg_replace('/\{([^}]+)\}/', '(?P<$1>[^/]+)', $pattern);
+            $pattern = preg_replace('/\{([^}]+)}/', '(?P<$1>[^/]+)', $pattern);
             // Guard: Second preg_replace can also return null on error
             if ($pattern === null) {
                 return false;
@@ -189,7 +188,7 @@ class Router
             if (preg_match($pattern, $uri, $matches)) {
                 // Extract named parameters
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
-                
+
                 // Log the route match before executing the callback
                 $this->logger->info(
                     "Route match found: {method} {pattern} (called URL: {uri}). Callback parameters: {params}",
@@ -197,10 +196,13 @@ class Router
                         "method" => $route["method"]->name,
                         "pattern" => $route["pattern"],
                         "uri" => $uri,
-                        "params" => implode(", ", array_map(fn($key, $value) => "$key => $value", array_keys($params), $params))
-                    ]
+                        "params" => implode(
+                            ", ",
+                            array_map(fn($key, $value) => "$key => $value", array_keys($params), $params),
+                        ),
+                    ],
                 );
-                
+
                 // Execute callback with parameters
                 ($route["callback"])(...$params);
                 return true;
@@ -232,7 +234,8 @@ class Router
         $trimmedUri = strtok($uri, "?");
 
         /* Since strtok can return false if the input string is empty (which can happen even with a valid REQUEST_URI),
-           we use the null coalescing operator to return the original URI in that case to ensure a consistent string return value. */
+           we use the null coalescing operator to return the original URI in that case to ensure a consistent string
+           return value. */
         return $trimmedUri ?: $uri;
     }
 
@@ -320,7 +323,8 @@ class Router
         $trimmedUri = strtok($uri, "?");
 
         /* Since strtok can return false if the input string is empty (which can happen even with a valid REQUEST_URI),
-           we use the null coalescing operator to return the original URI in that case to ensure a consistent string return value. */
+           we use the null coalescing operator to return the original URI in that case to ensure a consistent string
+           return value. */
         return $_SERVER["REQUEST_METHOD"] . " " . ($trimmedUri ?: $uri);
     }
 }
