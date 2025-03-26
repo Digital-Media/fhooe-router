@@ -44,14 +44,15 @@ Composer will create a project in the `path/to/install` directory.
        // e.g., load a view
    });
    ```
-   **Placeholders:** You can define route placeholders using curly brackets. The name of the placeholder will be available as a parameter in the callback, the actual value in the URI will be its argument.
+   **Placeholders:** You can define route placeholders using curly brackets. The name of the placeholder will be available as a parameter in the callback, and the actual value in the URI will be its argument.
 
    ```php
    $router->get("/product/{id}", function ($id) {
       // e.g., load a view to display the product
    });
+   ```
 
-   **Optional parts:** You can make parts of the route optional by putting it in square brackets. That way a route will match in both ways. This can be, for example, used to make a route work with or without a trailing slash.
+   **Optional parts:** You can make route parts optional by putting them in square brackets. That way, a route will match both ways. This can be, for example, used to make a route work with or without a trailing slash.
 
    ```php
    $router->get("/form[/]", function () {
@@ -67,7 +68,7 @@ Composer will create a project in the `path/to/install` directory.
    });
    ```
 
-4. Optional: define a base path if your application is not located in your server's document root. 
+4. Optional: Define a base path if your application is not located in your server's document root. 
 
    ```php
    $router->setBasePath("/path/to/your/files");
@@ -100,7 +101,7 @@ Composer will create a project in the `path/to/install` directory.
    }
    ```
 
-The static method is intended primarily for quickly getting the route string. It offers less functionality, e.g., no reverse route resolution.
+The static method is intended primarily to quickly get the route string. It offers less functionality, e.g., no reverse route resolution.
 
 ## Contributing
 
