@@ -14,6 +14,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [2.0.0] - 2025-03-26
+
+### Added
+
+- Added support for placeholders in routes.
+- Added support for optional route parts.
+- `RouteAlreadyExistsException`: thrown when adding a route that already exists.
+- More and better tests.
+
+### Changed
+
+- Switched to PHP 8.4 as a minimum requirement.
+- `getUri()` now returns "/" if the request URI cannot be determined.
+- `Router::getRoute()` now returns "GET /" if the request URI cannot be determined.
+- A `LoggerInterface` object is now injected in the constructor.
+- A route that is already registered, can't be added again. This will throw a `RouteAlreadyExistsException`.
+- More and more verbose logging messages.
+- The log message for a matching route is now issued before the callback is executed.
+- Updated all dependencies.
+
+### Removed
+
+- Removed `LoggerAwareTrait` from `Router`.
+
+### Security
+
+- Updated logging calls with proper PSR-3 placeholder replacement.
+
 ## [1.0.0] - 2024-02-05
 
 ### Added
@@ -74,7 +102,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added notes on Contributing.
 - Added this changelog.
 
-[Unreleased]: https://github.com/Digital-Media/fhooe-router/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/Digital-Media/fhooe-router/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/Digital-Media/fhooe-router/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Digital-Media/fhooe-router/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/Digital-Media/fhooe-router/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/Digital-Media/fhooe-router/compare/v0.1.0...v0.2.0
