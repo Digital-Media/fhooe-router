@@ -6,7 +6,7 @@ namespace Fhooe\Router\Type;
 
 /**
  * The supported HTTP methods for the router.
- * @package Fhooe\Router\Type   
+ * @package Fhooe\Router\Type
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @since 1.0.0
  */
