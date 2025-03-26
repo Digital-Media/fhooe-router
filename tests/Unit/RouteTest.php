@@ -155,7 +155,7 @@ it("adds the GET route /other, sets a 404 handler and runs it", function () {
  */
 it("handles URL parameters correctly", function () {
     $_SERVER["REQUEST_URI"] = "/user/123";
-    
+
     $this->router->addRoute(HttpMethod::GET, "/user/{id}", function ($id) {
         echo "User ID: $id";
     });
@@ -173,7 +173,7 @@ it("handles URL parameters correctly", function () {
  */
 it("handles multiple URL parameters correctly", function () {
     $_SERVER["REQUEST_URI"] = "/post/123/comment/456";
-    
+
     $this->router->addRoute(HttpMethod::GET, "/post/{postId}/comment/{commentId}", function ($postId, $commentId) {
         echo "Post: $postId, Comment: $commentId";
     });
@@ -191,11 +191,11 @@ it("handles multiple URL parameters correctly", function () {
  */
 it("treats routes with and without trailing slash as different", function () {
     $_SERVER["REQUEST_URI"] = "/test/";
-    
+
     $this->router->set404Callback(function () {
         echo "404";
     });
-    
+
     // Route ohne trailing slash
     $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test without slash";
@@ -226,7 +226,7 @@ it("treats routes with and without trailing slash as different", function () {
  */
 it("handles query parameters correctly", function () {
     $_SERVER["REQUEST_URI"] = "/test?param=value";
-    
+
     $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test";
     });
@@ -244,7 +244,7 @@ it("handles query parameters correctly", function () {
  */
 it("returns root path when REQUEST_URI is not set", function () {
     unset($_SERVER["REQUEST_URI"]);
-    
+
     expect($this->router->getUri())->toBe("/");
 });
 
@@ -254,7 +254,7 @@ it("returns root path when REQUEST_URI is not set", function () {
 it("handles POST request correctly", function () {
     $_SERVER["REQUEST_METHOD"] = "POST";
     $_SERVER["REQUEST_URI"] = "/submit";
-    
+
     $this->router->addRoute(HttpMethod::POST, "/submit", function () {
         echo "submitted";
     });
@@ -272,7 +272,7 @@ it("handles POST request correctly", function () {
  */
 it("handles optional parts in routes correctly", function () {
     $_SERVER["REQUEST_URI"] = "/test";
-    
+
     $this->router->addRoute(HttpMethod::GET, "/test[/]", function () {
         echo "test with optional slash";
     });
@@ -286,7 +286,7 @@ it("handles optional parts in routes correctly", function () {
 
     // Test with trailing slash
     $_SERVER["REQUEST_URI"] = "/test/";
-    
+
     ob_start();
     $this->router->run();
     $output = ob_get_contents();

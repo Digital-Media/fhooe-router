@@ -45,7 +45,7 @@ it("gets the current route with different HTTP methods", function () {
     foreach (HttpMethod::cases() as $method) {
         $_SERVER["REQUEST_METHOD"] = $method->name;
         $_SERVER["REQUEST_URI"] = "/test";
-        
+
         $route = Router::getRoute();
         expect($route)->toBe("{$method->name} /test");
     }
@@ -56,7 +56,7 @@ it("gets the current route with different HTTP methods", function () {
  */
 it("handles invalid URI gracefully", function () {
     $_SERVER["REQUEST_URI"] = "";
-    
+
     $route = Router::getRoute();
     expect($route)->toBe("GET /");
 });
@@ -66,7 +66,7 @@ it("handles invalid URI gracefully", function () {
  */
 it("strips query parameters from URI", function () {
     $_SERVER["REQUEST_URI"] = "/test?param=value";
-    
+
     $route = Router::getRoute();
     expect($route)->toBe("GET /test");
 });
