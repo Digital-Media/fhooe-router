@@ -12,6 +12,4 @@ use LogicException;
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @since 0.1.0
  */
-class HandlerNotSetException extends LogicException
-{
-}
+class HandlerNotSetException extends LogicException {}
