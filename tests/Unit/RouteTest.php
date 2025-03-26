@@ -149,3 +149,148 @@ it("adds the GET route /other, sets a 404 handler and runs it", function () {
 
     expect($output)->toBe("404");
 });
+
+/**
+ * Test handling URL parameters in routes
+ */
+it("handles URL parameters correctly", function () {
+    $_SERVER["REQUEST_URI"] = "/user/123";
+    
+    $this->router->addRoute(HttpMethod::GET, "/user/{id}", function ($id) {
+        echo "User ID: $id";
+    });
+
+    ob_start();
+    $this->router->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe("User ID: 123");
+});
+
+/**
+ * Test handling multiple URL parameters
+ */
+it("handles multiple URL parameters correctly", function () {
+    $_SERVER["REQUEST_URI"] = "/post/123/comment/456";
+    
+    $this->router->addRoute(HttpMethod::GET, "/post/{postId}/comment/{commentId}", function ($postId, $commentId) {
+        echo "Post: $postId, Comment: $commentId";
+    });
+
+    ob_start();
+    $this->router->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe("Post: 123, Comment: 456");
+});
+
+/**
+ * Test handling trailing slashes
+ */
+it("treats routes with and without trailing slash as different", function () {
+    $_SERVER["REQUEST_URI"] = "/test/";
+    
+    $this->router->set404Callback(function () {
+        echo "404";
+    });
+    
+    // Route ohne trailing slash
+    $this->router->addRoute(HttpMethod::GET, "/test", function () {
+        echo "test without slash";
+    });
+
+    ob_start();
+    $this->router->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe("404");
+
+    // Route mit trailing slash
+    $this->router->addRoute(HttpMethod::GET, "/test/", function () {
+        echo "test with slash";
+    });
+
+    ob_start();
+    $this->router->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe("test with slash");
+});
+
+/**
+ * Test handling query parameters
+ */
+it("handles query parameters correctly", function () {
+    $_SERVER["REQUEST_URI"] = "/test?param=value";
+    
+    $this->router->addRoute(HttpMethod::GET, "/test", function () {
+        echo "test";
+    });
+
+    ob_start();
+    $this->router->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe("test");
+});
+
+/**
+ * Test handling missing REQUEST_URI
+ */
+it("returns root path when REQUEST_URI is not set", function () {
+    unset($_SERVER["REQUEST_URI"]);
+    
+    expect($this->router->getUri())->toBe("/");
+});
+
+/**
+ * Test successful POST request
+ */
+it("handles POST request correctly", function () {
+    $_SERVER["REQUEST_METHOD"] = "POST";
+    $_SERVER["REQUEST_URI"] = "/submit";
+    
+    $this->router->addRoute(HttpMethod::POST, "/submit", function () {
+        echo "submitted";
+    });
+
+    ob_start();
+    $this->router->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe("submitted");
+});
+
+/**
+ * Test handling optional parts in routes
+ */
+it("handles optional parts in routes correctly", function () {
+    $_SERVER["REQUEST_URI"] = "/test";
+    
+    $this->router->addRoute(HttpMethod::GET, "/test[/]", function () {
+        echo "test with optional slash";
+    });
+
+    ob_start();
+    $this->router->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe("test with optional slash");
+
+    // Test with trailing slash
+    $_SERVER["REQUEST_URI"] = "/test/";
+    
+    ob_start();
+    $this->router->run();
+    $output = ob_get_contents();
+    ob_end_clean();
+
+    expect($output)->toBe("test with optional slash");
+});
