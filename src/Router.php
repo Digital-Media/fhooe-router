@@ -6,8 +6,9 @@ namespace Fhooe\Router;
 
 use Closure;
 use Fhooe\Router\Exception\HandlerNotSetException;
+use Fhooe\Router\Exception\RouteAlreadyExistsException;
 use Fhooe\Router\Type\HttpMethod;
-use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
@@ -22,34 +23,34 @@ use Psr\Log\NullLogger;
  */
 class Router
 {
-    use LoggerAwareTrait;
-
     /**
      * @var array<array{method: HttpMethod, pattern: string, callback: Closure}> All routes (methods and patterns)
      * and their associated callbacks.
      */
-    private array $routes;
+    private array $routes = [];
 
     /**
      * @var Closure|null The 404 callback when no suitable other route is found.
      */
-    private ?Closure $noRouteCallback;
+    private ?Closure $noRouteCallback = null;
 
     /**
      * @var string The base path that is considered when this application is not in the server's document root.
      */
-    private string $basePath;
+    private string $basePath = "";
 
     /**
-     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback. The logger instance
-     * is also empty but can be added at any time.
+     * @var LoggerInterface The logger instance used for logging router events.
      */
-    public function __construct()
+    private LoggerInterface $logger;
+
+    /**
+     * Creates a new Router. The list of routes is initially empty, so is the supplied 404 callback.
+     * @param LoggerInterface|null $logger Optional logger instance. If not provided, a NullLogger will be used.
+     */
+    public function __construct(?LoggerInterface $logger = null)
     {
-        $this->basePath = "";
-        $this->routes = [];
-        $this->noRouteCallback = null;
-        $this->logger = new NullLogger();
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -59,29 +60,51 @@ class Router
     public function setBasePath(string $basePath): void
     {
         $this->basePath = $basePath;
+        $this->logger->info("Base path set to: {basePath}", ["basePath" => $basePath]);
     }
 
     /**
      * Adds a route, consisting of a method and a URI pattern together with its callback handler.
      * @param HttpMethod $method The HTTP method of this route.
      * Only GET and POST (as specified in the HttpMethod enum) are supported.
-     * @param string $pattern The routing pattern.
-     * @param Closure $callback The callback that is called when the route matches.
+     * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
+     * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
+     * @param Closure $callback The callback that is called when the route matches. Parameter names
+     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function addRoute(HttpMethod $method, string $pattern, Closure $callback): void
     {
+        // Check for existing route with same method and pattern
+        foreach ($this->routes as $route) {
+            if ($route["method"] === $method && $route["pattern"] === $pattern) {
+                throw new RouteAlreadyExistsException(
+                    "A route with method $method->name and pattern '$pattern' already exists.",
+                );
+            }
+        }
+
         $this->routes[] = [
             "method" => $method,
             "pattern" => $pattern,
-            "callback" => $callback
+            "callback" => $callback,
         ];
-        $this->logger?->info("Route added: " . $method->name . " " . $pattern);
+        $this->logger->info(
+            "Route added: {method} {pattern}",
+            [
+                "method" => $method->name,
+                "pattern" => $pattern,
+            ],
+        );
     }
 
     /**
      * Shorthand method for adding a new GET route.
-     * @param string $pattern The routing pattern.
-     * @param Closure $callback The callback that is called when the route matches.
+     * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
+     * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
+     * @param Closure $callback The callback that is called when the route matches. Parameter names
+     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function get(string $pattern, Closure $callback): void
     {
@@ -90,8 +113,11 @@ class Router
 
     /**
      * Shorthand method for adding a new POST route.
-     * @param string $pattern The routing pattern.
-     * @param Closure $callback The callback that is called when the route matches.
+     * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
+     * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
+     * @param Closure $callback The callback that is called when the route matches. Parameter names
+     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function post(string $pattern, Closure $callback): void
     {
@@ -105,7 +131,7 @@ class Router
     public function set404Callback(Closure $callback): void
     {
         $this->noRouteCallback = $callback;
-        $this->logger?->info("404 callback set.");
+        $this->logger->info("404 callback set.");
     }
 
     /**
@@ -114,17 +140,16 @@ class Router
      */
     public function run(): void
     {
-        foreach ($this->routes as $route) {
-            if ($this->handle($route)) {
-                return;
-            }
+        // Loop over all routes and check if one of them matches (one callback returns true)
+        if (array_any($this->routes, fn($route) => $this->handle($route))) {
+            return;
         }
 
         // If no route was handled, call the 404 callback
         http_response_code(404);
         if ($this->noRouteCallback) {
             ($this->noRouteCallback)();
-            $this->logger?->info("No route match found. 404 callback executed.");
+            $this->logger->info("No route match found. 404 callback executed.");
         } else {
             throw new HandlerNotSetException("404 handler not set.");
         }
@@ -143,16 +168,44 @@ class Router
         if ($route["method"]->name === $method) {
             $uri = $this->getUri();
 
-            if ($route["pattern"] === $uri) {
-                if (is_callable($route["callback"])) {
-                    ($route["callback"])(...)->call($this);
-                    $this->logger?->info(
-                        "Route match found: " .
-                        $route["method"]->name . " " . $route["pattern"] .
-                        ". Callback executed."
-                    );
-                    return true;
-                }
+            // Convert route pattern to regex pattern
+            // First handle optional parts in square brackets
+            $pattern = preg_replace('/\[(.*?)]/', '(?:$1)?', $route["pattern"]);
+            // Guard: preg_replace can return null on error, which would cause issues in subsequent operations
+            if ($pattern === null) {
+                return false;
+            }
+            // Then handle parameters in curly braces
+            $pattern = preg_replace('/\{([^}]+)}/', '(?P<$1>[^/]+)', $pattern);
+            // Guard: Second preg_replace can also return null on error
+            if ($pattern === null) {
+                return false;
+            }
+            // Finally escape forward slashes
+            $pattern = str_replace('/', '\/', $pattern);
+            $pattern = '/^' . $pattern . '$/';
+
+            if (preg_match($pattern, $uri, $matches)) {
+                // Extract named parameters
+                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+
+                // Log the route match before executing the callback
+                $this->logger->info(
+                    "Route match found: {method} {pattern} (called URL: {uri}). Callback parameters: {params}",
+                    [
+                        "method" => $route["method"]->name,
+                        "pattern" => $route["pattern"],
+                        "uri" => $uri,
+                        "params" => implode(
+                            ", ",
+                            array_map(fn($key, $value) => "$key => $value", array_keys($params), $params),
+                        ),
+                    ],
+                );
+
+                // Execute callback with parameters
+                ($route["callback"])(...$params);
+                return true;
             }
             return false;
         }
@@ -166,20 +219,26 @@ class Router
      */
     public function getUri(): string
     {
-        $uri = rawurldecode($_SERVER["REQUEST_URI"]);
-
-        // Remove the base path if there is one
-        if ($this->basePath) {
-            $uri = str_replace($this->basePath, "", $uri);
+        // Guard: $_SERVER["REQUEST_URI"] must be set and be a string, otherwise "/" is returned as default value
+        if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
+            return "/";
         }
 
-        // Remove potential URI parameters (everything after ?) and return
-        $trimmedUri = strtok($uri, "?");
+        $uri = rawurldecode($_SERVER["REQUEST_URI"]);
 
-        /* Since strtok can return false (if $uri was an empty string, which it should never be because
-           $_SERVER["REQUEST_URI"] should always have a value), return $uri if that was ever the case in order to have a
-           consistent string return value. */
-        return $trimmedUri ?: $uri;
+        // Remove query string if present
+        if (($pos = strpos($uri, "?")) !== false) {
+            $uri = substr($uri, 0, $pos);
+        }
+        // Remove base path if set
+        if ($this->basePath !== "") {
+            $uri = substr($uri, strlen($this->basePath));
+        }
+        // Ensure URI starts with /
+        if (empty($uri)) {
+            $uri = "/";
+        }
+        return $uri;
     }
 
     /**
@@ -242,20 +301,36 @@ class Router
     }
 
     /**
-     * Static router method. This simply returns the current route. The route is a combination of method and request
-     * URI. If a base path is specified, it is removed from the request URI before the route is returned.
-     * When using the static routing method, all logic handling the route has to be done separately.
-     * @param string $basePath The base path that is to be removed from the route when the application is not in
-     * the server's document root but in a subdirectory. Specify without a trailing slash.
+     * Returns the current route as a string in the format "METHOD /path".
+     * @param string $basePath The base path to remove from the URI.
      * @return string The current route.
      */
     public static function getRoute(string $basePath = ""): string
     {
-        $routingParams["method"] = strip_tags($_SERVER["REQUEST_METHOD"]);
-        $routingParams["route"] = strip_tags($_SERVER["REQUEST_URI"]);
+        // Guard: $_SERVER["REQUEST_URI"] must be set and be a string, otherwise "/" is returned as default value
+        if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
+            return (isset($_SERVER["REQUEST_METHOD"]) && is_string(
+                    $_SERVER["REQUEST_METHOD"],
+                ) ? $_SERVER["REQUEST_METHOD"] : "GET") . " /";
+        }
 
-        $routingParams["route"] = str_replace($basePath, "", $routingParams["route"]);
+        $uri = rawurldecode($_SERVER["REQUEST_URI"]);
 
-        return $routingParams["method"] . " " . $routingParams["route"];
+        // Remove query string if present
+        if (($pos = strpos($uri, "?")) !== false) {
+            $uri = substr($uri, 0, $pos);
+        }
+
+        // Remove base path if set
+        if ($basePath !== "") {
+            $uri = substr($uri, strlen($basePath));
+        }
+
+        // Ensure URI starts with /
+        if (empty($uri)) {
+            $uri = "/";
+        }
+
+        return $_SERVER["REQUEST_METHOD"] . " " . $uri;
     }
 }

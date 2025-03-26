@@ -1,6 +1,6 @@
 # <img src="https://raw.githubusercontent.com/Digital-Media/fhooe-router-skeleton/076902786d9e13145b315154b0ea30b6222e3055/views/images/fhooe-router-logo.svg" height="32" alt="The fhooe/router Logo: Three containers arrows going in different directions: left, up, and right."> fhooe/router
 
-*fhooe/router* is a simple object-oriented router developed for PHP classes in the [Media Technology and Design](https://www.fh-ooe.at/en/hagenberg-campus/studiengaenge/bachelor/media-technology-and-design/) program at the [University of Applied Sciences Upper Austria](https://www.fh-ooe.at/en/hagenberg-campus/). It is primarily designed for educational purposes (learning the concept of routing and object-oriented principles). Its functionality is limited by design (e.g., only GET and POST protocols are supported). Use it for "public" applications at your own risk.
+*fhooe/router* is a simple object-oriented router developed for PHP classes in the [Media Technology and Design](https://fh-ooe.at/en/degree-programs/media-technology-and-design-bachelor) program at the [University of Applied Sciences Upper Austria](https://fh-ooe.at/en/campus-hagenberg). It is primarily designed for educational purposes (learning the concept of routing and object-oriented principles). Its functionality is limited by design (e.g., only GET and POST methods are supported). Use it for "public" applications at your own risk.
 
 ## Installation
 
@@ -29,24 +29,46 @@ Composer will create a project in the `path/to/install` directory.
    ```php
    $router = new Router();
    ```
-
-2. Define routes using the `get()` and `post()` methods. Supply a URI pattern to match against and a callback that is executed when the pattern and protocol both match.
+   **Adding a logger:** Pass an instance of a PSR-3 compatible logger application, e.g., [Monolog](https://packagist.org/packages/monolog/monolog), to receive predefined log messages about routes being added and executed. This can be useful to track what the Router is doing.
 
    ```php
-   $router->get("/", function() {
+   $logger = new Logger("skeleton-logger");
+   // add processors, formatters or handlers to the logger
+   $router = new Router($logger);
+   ```
+
+2. Define routes using the `get()` and `post()` methods. Supply a URI pattern to match against and a callback that is executed when the pattern and HTTP method match.
+
+   ```php
+   $router->get("/", function () {
        // e.g., load a view
+   });
+   ```
+   **Placeholders:** You can define route placeholders using curly brackets. The name of the placeholder will be available as a parameter in the callback, and the actual value in the URI will be its argument.
+
+   ```php
+   $router->get("/product/{id}", function ($id) {
+      // e.g., load a view to display the product
+   });
+   ```
+
+   **Optional parts:** You can make route parts optional by putting them in square brackets. That way, a route will match both ways. This can be, for example, used to make a route work with or without a trailing slash.
+
+   ```php
+   $router->get("/form[/]", function () {
+      // e.g., load a view
    });
    ```
 
 3. Set a 404 callback to load a view or trigger behavior when no route matches.
 
    ```php
-   $router->set404Callback(function() {
+   $router->set404Callback(function () {
        // e.g., load a 404 view
    });
    ```
 
-4. Optional: define a base path if your application is not located in your server's document root. 
+4. Optional: Define a base path if your application is not located in your server's document root. 
 
    ```php
    $router->setBasePath("/path/to/your/files");
@@ -60,7 +82,7 @@ Composer will create a project in the `path/to/install` directory.
 
 ### Using the Static Routing Method `Router::getRoute()`
 
-1. Invoke the static method. Provide a base path as an argument if your project is not located in your server's document root. The method returns the route as a string in the form of `PROTOCOL /pattern` , e.g., `GET /`, when a GET request was made to the root directory.
+1. Invoke the static method. Provide a base path as an argument if your project is not located in your server's document root. The method returns the route as a string in the form of `METHOD /pattern` , e.g., `GET /`, when a GET request was made to the root directory.
 
    ```php
    $route = Router::getRoute("/path/to/your/files");
@@ -79,7 +101,7 @@ Composer will create a project in the `path/to/install` directory.
    }
    ```
 
-The static method is intended primarily for quickly getting the route string. It offers less functionality, e.g., no reverse route resolution.
+The static method is intended primarily to quickly get the route string. It offers less functionality, e.g., no reverse route resolution.
 
 ## Contributing
 
@@ -88,4 +110,3 @@ If you'd like to contribute, please refer to [CONTRIBUTING](https://github.com/D
 ## License
 
 *fhooe/router* is licensed under the MIT license. See [LICENSE](https://github.com/Digital-Media/fhooe-router/blob/main/LICENSE) for more information.
-

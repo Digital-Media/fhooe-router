@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace Fhooe\Router\Exception;
 
-use LogicException;
+use RuntimeException;
 
 /**
- * Exception that can be thrown when a callback for a certain action is not specified.
+ * Exception thrown when attempting to add a route that already exists.
  * @package Fhooe\Router\Exception
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
- * @since 0.1.0
+ * @since 2.0.0
  */
-class HandlerNotSetException extends LogicException {}
+class RouteAlreadyExistsException extends RuntimeException {}

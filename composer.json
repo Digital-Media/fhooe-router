@@ -16,13 +16,15 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "ext-mbstring": "*",
         "psr/log": "^3.0"
     },
     "require-dev": {
-        "pestphp/pest": "^2.33",
-        "phpstan/phpstan": "^1.10"
+        "ergebnis/composer-normalize": "^2.45",
+        "mockery/mockery": "^1.6",
+        "pestphp/pest": "^3.7",
+        "phpstan/phpstan": "^2.1"
     },
     "minimum-stability": "stable",
     "autoload": {
@@ -32,6 +34,7 @@
     },
     "config": {
         "allow-plugins": {
+            "ergebnis/composer-normalize": true,
             "pestphp/pest-plugin": true
         }
     },
