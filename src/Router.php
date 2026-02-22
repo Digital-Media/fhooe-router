@@ -14,9 +14,10 @@ use Psr\Log\NullLogger;
 /**
  * A simple object-oriented router for educational purposes that can handle GET and POST requests.
  *
- * This routing class can be used in two ways:
- * 1. Instantiate it, set routes with callbacks and run it (recommended).
- * 2. Use the static getRoute() method to just retrieve the HTTP method and route and perform the logic yourself.
+ * Instantiate the router, register routes with get() or post(), optionally set a 404 callback, then call run().
+ * The router iterates over the registered routes in the order they were added. The first route whose HTTP method
+ * and URI pattern match the current request is used: its callback is invoked and routing stops. If no route
+ * matches, the 404 callback is run (if set).
  * @package Fhooe\Router
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @since 0.1.0
@@ -135,8 +136,8 @@ class Router
     }
 
     /**
-     * Execute the router. This loops over all the routes that have been added and invokes the associated callback if
-     * the method and pattern match. If there is no match, the 404 callback is invoked.
+     * Executes the router. Iterates over the registered routes in order and invokes the first route whose HTTP
+     * method and URI pattern match the current request. If none matches, the 404 callback is run (if set).
      */
     public function run(): void
     {
