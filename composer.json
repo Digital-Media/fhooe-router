@@ -16,14 +16,14 @@
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.5",
         "ext-mbstring": "*",
         "psr/log": "^3.0"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.45",
+        "ergebnis/composer-normalize": "^2.50",
         "mockery/mockery": "^1.6",
-        "pestphp/pest": "^3.7",
+        "pestphp/pest": "^3.8",
         "phpstan/phpstan": "^2.1"
     },
     "minimum-stability": "stable",
