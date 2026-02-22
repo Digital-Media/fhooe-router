@@ -169,26 +169,26 @@ class Router
         if ($route["method"]->name === $method) {
             $uri = $this->getUri();
 
-            // Convert route pattern to regex pattern
-            // First handle optional parts in square brackets
-            $pattern = preg_replace('/\[(.*?)]/', '(?:$1)?', $route["pattern"]);
-            // Guard: preg_replace can return null on error, which would cause issues in subsequent operations
+            // Build a regex from the route pattern so we can match the current URI and extract
+            // placeholders. Optional segments [...] become (?:...)?; placeholders {name} become
+            // named capture groups (?P<name>[^/]+). Slashes are escaped for the regex.
+            // 1. Optional parts in square brackets → non-capturing optional group
+            $pattern = preg_replace("/\[(.*?)]/", '(?:$1)?', $route["pattern"]);
             if ($pattern === null) {
                 return false;
             }
-            // Then handle parameters in curly braces
-            $pattern = preg_replace('/\{([^}]+)}/', '(?P<$1>[^/]+)', $pattern);
-            // Guard: Second preg_replace can also return null on error
+            // 2. Placeholders in curly braces → named capture group (one or more non-slash chars)
+            $pattern = preg_replace("/\\{([^}]+)}/", '(?P<$1>[^/]+)', $pattern);
             if ($pattern === null) {
                 return false;
             }
-            // Finally escape forward slashes
-            $pattern = str_replace('/', '\/', $pattern);
-            $pattern = '/^' . $pattern . '$/';
+            // 3. Escape forward slashes for use in regex
+            $pattern = str_replace("/", '\/', $pattern);
+            $pattern = "/^" . $pattern . '$/';
 
             if (preg_match($pattern, $uri, $matches)) {
                 // Extract named parameters
-                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                $params = array_filter($matches, "is_string", ARRAY_FILTER_USE_KEY);
 
                 // Log the route match before executing the callback
                 $this->logger->info(
