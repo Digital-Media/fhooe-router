@@ -45,7 +45,7 @@ it("adds the GET route /test with a matching base path set and runs it", functio
     $this->router->set404Callback(function () {
         echo "404";
     });
-    $this->router->setBasePath("/some/basepath");
+    $this->router->basePath = "/some/basepath";
 
     $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test";
@@ -70,7 +70,7 @@ it("adds the GET route /test with a mismatching base path set and runs it", func
     $this->router->set404Callback(function () {
         echo "404";
     });
-    $this->router->setBasePath("/some/basepath");
+    $this->router->basePath = "/some/basepath";
 
     $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test";

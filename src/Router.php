@@ -36,9 +36,15 @@ class Router
     private ?Closure $noRouteCallback = null;
 
     /**
-     * @var string The base path that is considered when this application is not in the server's document root.
+     * Base path when the application is not in the server's document root. Set by assigning to this property
+     * (e.g. $router->basePath = '/path'); the set hook logs each change.
      */
-    private string $basePath = "";
+    public string $basePath = "" {
+        set {
+            $this->basePath = $value;
+            $this->logger->info("Base path set to: {basePath}", ["basePath" => $value]);
+        }
+    }
 
     /**
      * @var LoggerInterface The logger instance used for logging router events.
@@ -52,16 +58,6 @@ class Router
     public function __construct(?LoggerInterface $logger = null)
     {
         $this->logger = $logger ?? new NullLogger();
-    }
-
-    /**
-     * Sets the base path if the application is not in the server's document root.
-     * @param string $basePath The base path. Specify without a trailing slash.
-     */
-    public function setBasePath(string $basePath): void
-    {
-        $this->basePath = $basePath;
-        $this->logger->info("Base path set to: {basePath}", ["basePath" => $basePath]);
     }
 
     /**
@@ -259,16 +255,6 @@ class Router
         }
 
         return $url;
-    }
-
-    /**
-     * Returns the base path if the application is not in the server's document root. If no base path is set, an empty
-     * string is returned.
-     * @return string The base path without a trailing slash or an empty string if no base path is set.
-     */
-    public function getBasePath(): string
-    {
-        return $this->basePath ?? "";
     }
 
     /**

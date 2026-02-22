@@ -19,8 +19,8 @@ it("creates a Router object", function () {
  */
 it("creates a Router object with a base path", function () {
     $router = new Router();
-    $router->setBasePath("/api");
-    expect($router->getBasePath())->toBe("/api");
+    $router->basePath = "/api";
+    expect($router->basePath)->toBe("/api");
 });
 
 /**
@@ -40,7 +40,7 @@ it("creates a Router object with a logger", function () {
     expect($router)->toBeInstanceOf(Router::class);
 
     // Führe eine Aktion aus, die Logging auslöst
-    $router->setBasePath("/api");
+    $router->basePath = "/api";
 });
 
 /**
@@ -50,5 +50,5 @@ it("creates a Router object without a logger", function () {
     $router = new Router();
     expect($router)
         ->toBeInstanceOf(Router::class)
-        ->and($router->getBasePath())->toBe("");
+        ->and($router->basePath)->toBe("");
 });
