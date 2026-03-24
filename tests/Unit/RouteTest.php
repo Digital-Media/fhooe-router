@@ -269,6 +269,23 @@ it("handles POST request correctly", function () {
 });
 
 /**
+ * Test that urlFor() returns the correct URL with and without a base path
+ */
+it("returns the correct URL for a pattern without a base path", function () {
+    expect($this->router->urlFor("/form"))->toBe("/form");
+});
+
+it("returns the correct URL for a pattern with a base path", function () {
+    $this->router->basePath = "/myapp";
+    expect($this->router->urlFor("/form"))->toBe("/myapp/form");
+});
+
+it("throws InvalidArgumentException when urlFor() is called with a pattern missing the leading slash", function () {
+    expect(fn() => $this->router->urlFor("form"))
+        ->toThrow(InvalidArgumentException::class, "Route pattern must start with a slash");
+});
+
+/**
  * Test that adding a duplicate route throws RouteAlreadyExistsException
  */
 it("throws RouteAlreadyExistsException when adding a duplicate route", function () {

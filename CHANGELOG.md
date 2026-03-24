@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `urlFor()` now validates that the pattern starts with a slash ("/") and throws `\InvalidArgumentException` otherwise.
+
 ### Changed
 
 - `RouteAlreadyExistsException` now extends `LogicException` instead of `RuntimeException` (duplicate route registration is a configuration error, not a runtime failure).
