@@ -39,7 +39,7 @@ it("creates a Router object with a logger", function () {
     $router = new Router($logger);
     expect($router)->toBeInstanceOf(Router::class);
 
-    // Führe eine Aktion aus, die Logging auslöst
+    // Trigger an action that causes logging
     $router->basePath = "/api";
 });
 
