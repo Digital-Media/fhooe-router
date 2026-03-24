@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `RouteAlreadyExistsException` now extends `LogicException` instead of `RuntimeException` (duplicate route registration is a configuration error, not a runtime failure).
 - `HandlerNotSetException` message now includes a remediation hint: "Call set404Callback() before run()."
+- `addRoute()` docblock now explicitly states that routes are matched in registration order and the first match wins.
 
 ### Deprecated
 

@@ -62,6 +62,7 @@ class Router
 
     /**
      * Adds a route, consisting of a method and a URI pattern together with its callback handler.
+     * Routes are matched in the order they are registered; the first matching route wins.
      * @param HttpMethod $method The HTTP method of this route.
      * Only GET and POST (as specified in the HttpMethod enum) are supported.
      * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
