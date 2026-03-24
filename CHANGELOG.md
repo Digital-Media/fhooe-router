@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+## [3.0.0] - 2026-03-24
+
+### Added
 
 - `urlFor()` now validates that the pattern starts with a slash ("/") and throws `\InvalidArgumentException` otherwise.
 
@@ -113,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added notes on Contributing.
 - Added this changelog.
 
-[Unreleased]: https://github.com/Digital-Media/fhooe-router/compare/v2.0.0...v3.0.0
+[Unreleased]: https://github.com/Digital-Media/fhooe-router/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/Digital-Media/fhooe-router/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/Digital-Media/fhooe-router/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Digital-Media/fhooe-router/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/Digital-Media/fhooe-router/compare/v0.2.0...v0.3.0
