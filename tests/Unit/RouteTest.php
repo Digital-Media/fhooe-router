@@ -5,6 +5,7 @@
  */
 
 use Fhooe\Router\Exception\HandlerNotSetException;
+use Fhooe\Router\Exception\RouteAlreadyExistsException;
 use Fhooe\Router\Type\HttpMethod;
 use Fhooe\Router\Router;
 
@@ -265,6 +266,19 @@ it("handles POST request correctly", function () {
     ob_end_clean();
 
     expect($output)->toBe("submitted");
+});
+
+/**
+ * Test that adding a duplicate route throws RouteAlreadyExistsException
+ */
+it("throws RouteAlreadyExistsException when adding a duplicate route", function () {
+    $this->router->addRoute(HttpMethod::GET, "/test", function () {
+        echo "test";
+    });
+
+    expect(fn() => $this->router->addRoute(HttpMethod::GET, "/test", function () {
+        echo "duplicate";
+    }))->toThrow(RouteAlreadyExistsException::class);
 });
 
 /**

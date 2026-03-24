@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- `RouteAlreadyExistsException` now extends `LogicException` instead of `RuntimeException` (duplicate route registration is a configuration error, not a runtime failure).
+
 ### Deprecated
 
 ### Removed
