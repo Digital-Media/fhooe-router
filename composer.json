@@ -16,14 +16,15 @@
         }
     ],
     "require": {
-        "php": "^8.4",
+        "php": "^8.5",
         "ext-mbstring": "*",
         "psr/log": "^3.0"
     },
     "require-dev": {
-        "ergebnis/composer-normalize": "^2.45",
+        "ergebnis/composer-normalize": "^2.50",
+        "friendsofphp/php-cs-fixer": "^3.94",
         "mockery/mockery": "^1.6",
-        "pestphp/pest": "^3.7",
+        "pestphp/pest": "^4.4",
         "phpstan/phpstan": "^2.1"
     },
     "minimum-stability": "stable",
@@ -39,9 +40,12 @@
         }
     },
     "scripts": {
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "cs-fix": "php-cs-fixer fix",
         "pest": "pest",
         "phpstan": "phpstan analyse src --memory-limit=-1 --level 9 || true",
         "test": [
+            "@cs-check",
             "@phpstan",
             "@pest"
         ]

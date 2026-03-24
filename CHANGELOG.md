@@ -14,6 +14,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 ### Security
 
+## [3.0.0] - 2026-03-24
+
+### Added
+
+- `urlFor()` now validates that the pattern starts with a slash ("/") and throws `\InvalidArgumentException` otherwise.
+
+### Changed
+
+- Switched to PHP 8.5 as a minimum requirement.
+- `basePath` is now a public property with a `set` hook that logs every assignment (replaces `setBasePath()` and `getBasePath()`).
+- `RouteAlreadyExistsException` now extends `LogicException` instead of `RuntimeException` (duplicate route registration is a configuration error, not a runtime failure).
+- `HandlerNotSetException` message now includes a remediation hint: "Call `set404Callback()` before `run()`."
+- `addRoute()` docblock now explicitly states that routes are matched in registration order and the first match wins.
+- `redirect()` is now documented as intended for absolute URLs (e.g. external redirects). Passing unvalidated user input is an Open Redirect risk.
+- `redirectTo()` is now documented as the method to use for internal route redirects — it prepends the base path automatically via `urlFor()`.
+
+### Removed
+
+- Removed static method `getRoute()`. Use the Router instance with `run()` instead.
+
 ## [2.0.0] - 2025-03-26
 
 ### Added
@@ -102,7 +122,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added notes on Contributing.
 - Added this changelog.
 
-[Unreleased]: https://github.com/Digital-Media/fhooe-router/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/Digital-Media/fhooe-router/compare/v3.0.0...HEAD
+[3.0.0]: https://github.com/Digital-Media/fhooe-router/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/Digital-Media/fhooe-router/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/Digital-Media/fhooe-router/compare/v0.3.0...v1.0.0
 [0.3.0]: https://github.com/Digital-Media/fhooe-router/compare/v0.2.0...v0.3.0

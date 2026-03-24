@@ -8,15 +8,17 @@ use Closure;
 use Fhooe\Router\Exception\HandlerNotSetException;
 use Fhooe\Router\Exception\RouteAlreadyExistsException;
 use Fhooe\Router\Type\HttpMethod;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
  * A simple object-oriented router for educational purposes that can handle GET and POST requests.
  *
- * This routing class can be used in two ways:
- * 1. Instantiate it, set routes with callbacks and run it (recommended).
- * 2. Use the static getRoute() method to just retrieve the HTTP method and route and perform the logic yourself.
+ * Instantiate the router, register routes with get() or post(), optionally set a 404 callback, then call run().
+ * The router iterates over the registered routes in the order they were added. The first route whose HTTP method
+ * and URI pattern match the current request is used: its callback is invoked and routing stops. If no route
+ * matches, the 404 callback is run (if set).
  * @package Fhooe\Router
  * @author Wolfgang Hochleitner <wolfgang.hochleitner@fh-hagenberg.at>
  * @since 0.1.0
@@ -35,9 +37,15 @@ class Router
     private ?Closure $noRouteCallback = null;
 
     /**
-     * @var string The base path that is considered when this application is not in the server's document root.
+     * Base path when the application is not in the server's document root. Set by assigning to this property
+     * (e.g., $router->basePath = '/path'); the set hook logs each change.
      */
-    private string $basePath = "";
+    public string $basePath = "" {
+        set {
+            $this->basePath = $value;
+            $this->logger->info("Base path set to: {basePath}", ["basePath" => $value]);
+        }
+    }
 
     /**
      * @var LoggerInterface The logger instance used for logging router events.
@@ -54,28 +62,19 @@ class Router
     }
 
     /**
-     * Sets the base path if the application is not in the server's document root.
-     * @param string $basePath The base path. Specify without a trailing slash.
-     */
-    public function setBasePath(string $basePath): void
-    {
-        $this->basePath = $basePath;
-        $this->logger->info("Base path set to: {basePath}", ["basePath" => $basePath]);
-    }
-
-    /**
      * Adds a route, consisting of a method and a URI pattern together with its callback handler.
+     * Routes are matched in the order they are registered; the first matching route wins.
      * @param HttpMethod $method The HTTP method of this route.
      * Only GET and POST (as specified in the HttpMethod enum) are supported.
      * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
      * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
      * @param Closure $callback The callback that is called when the route matches. Parameter names
-     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * must match the names in the route pattern to avoid PHP errors (e.g., function($id) for pattern {id}).
      * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function addRoute(HttpMethod $method, string $pattern, Closure $callback): void
     {
-        // Check for existing route with same method and pattern
+        // Check for existing route with the same method and pattern
         foreach ($this->routes as $route) {
             if ($route["method"] === $method && $route["pattern"] === $pattern) {
                 throw new RouteAlreadyExistsException(
@@ -100,10 +99,10 @@ class Router
 
     /**
      * Shorthand method for adding a new GET route.
-     * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
+     * @param string $pattern The routing pattern. Parameters in curly braces (e.g., {id}) must match
      * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
      * @param Closure $callback The callback that is called when the route matches. Parameter names
-     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * must match the names in the route pattern to avoid PHP errors (e.g., function($id) for pattern {id}).
      * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function get(string $pattern, Closure $callback): void
@@ -116,7 +115,7 @@ class Router
      * @param string $pattern The routing pattern. Parameters in curly braces (e.g. {id}) must match
      * the parameter names in the callback function. Optional parts can be specified in square brackets (e.g. [/]).
      * @param Closure $callback The callback that is called when the route matches. Parameter names
-     * must match the names in the route pattern to avoid PHP errors (e.g. function($id) for pattern {id}).
+     * must match the names in the route pattern to avoid PHP errors (e.g., function($id) for pattern {id}).
      * @throws RouteAlreadyExistsException If a route with the same method and pattern already exists.
      */
     public function post(string $pattern, Closure $callback): void
@@ -135,8 +134,8 @@ class Router
     }
 
     /**
-     * Execute the router. This loops over all the routes that have been added and invokes the associated callback if
-     * the method and pattern match. If there is no match, the 404 callback is invoked.
+     * Executes the router. Iterates over the registered routes in order and invokes the first route whose HTTP
+     * method and URI pattern match the current request. If none matches, the 404 callback is run (if set).
      */
     public function run(): void
     {
@@ -151,13 +150,13 @@ class Router
             ($this->noRouteCallback)();
             $this->logger->info("No route match found. 404 callback executed.");
         } else {
-            throw new HandlerNotSetException("404 handler not set.");
+            throw new HandlerNotSetException("404 handler not set. Call set404Callback() before run().");
         }
     }
 
     /**
      * Handles a single route. The method first matches the current request's method with the one of the route.
-     * If there is a match, the URI pattern is compared. In case of a match, the associated callback is invoked.
+     * If there is a match, the URI pattern is compared. In the case of a match, the associated callback is invoked.
      * @param array{method: HttpMethod, pattern: string, callback: Closure} $route The route to handle.
      * @return bool Returns true, if there was a match and the route was handled, otherwise false.
      */
@@ -168,26 +167,26 @@ class Router
         if ($route["method"]->name === $method) {
             $uri = $this->getUri();
 
-            // Convert route pattern to regex pattern
-            // First handle optional parts in square brackets
-            $pattern = preg_replace('/\[(.*?)]/', '(?:$1)?', $route["pattern"]);
-            // Guard: preg_replace can return null on error, which would cause issues in subsequent operations
+            // Build a regex from the route pattern so we can match the current URI and extract
+            // placeholders. Optional segments [...] become (?:...)?; placeholders {name} become
+            // named capture groups (?P<name>[^/]+). Slashes are escaped for the regex.
+            // 1. Optional parts in square brackets → non-capturing optional group
+            $pattern = preg_replace("/\[(.*?)]/", '(?:$1)?', $route["pattern"]);
             if ($pattern === null) {
                 return false;
             }
-            // Then handle parameters in curly braces
-            $pattern = preg_replace('/\{([^}]+)}/', '(?P<$1>[^/]+)', $pattern);
-            // Guard: Second preg_replace can also return null on error
+            // 2. Placeholders in curly braces → named capture group (one or more non-slash chars)
+            $pattern = preg_replace("/\\{([^}]+)}/", '(?P<$1>[^/]+)', $pattern);
             if ($pattern === null) {
                 return false;
             }
-            // Finally escape forward slashes
-            $pattern = str_replace('/', '\/', $pattern);
-            $pattern = '/^' . $pattern . '$/';
+            // 3. Escape forward slashes for use in regex
+            $pattern = str_replace("/", '\/', $pattern);
+            $pattern = "/^" . $pattern . '$/';
 
             if (preg_match($pattern, $uri, $matches)) {
                 // Extract named parameters
-                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+                $params = array_filter($matches, "is_string", ARRAY_FILTER_USE_KEY);
 
                 // Log the route match before executing the callback
                 $this->logger->info(
@@ -219,7 +218,7 @@ class Router
      */
     public function getUri(): string
     {
-        // Guard: $_SERVER["REQUEST_URI"] must be set and be a string, otherwise "/" is returned as default value
+        // Guard: $_SERVER["REQUEST_URI"] must be set and be a string, otherwise "/" is returned as the default value
         if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
             return "/";
         }
@@ -244,15 +243,20 @@ class Router
     /**
      * Returns the full URL for a given route. If a base path is set, it is prepended to account for projects in
      * subdirectories.
-     * @param string $pattern The pattern of a route, has to start with a slash ("/").
+     * @param string $pattern The pattern of a route. It has to start with a slash ("/").
      * @return string The full URL for a route for this application.
+     * @throws InvalidArgumentException If the pattern does not start with a slash ("/").
      */
     public function urlFor(string $pattern): string
     {
+        if ($pattern !== "" && $pattern[0] !== "/") {
+            throw new InvalidArgumentException("Route pattern must start with a slash (\"/\"), \"$pattern\" given.");
+        }
+
         // If we're in the document root, the URL is already our pattern.
         $url = $pattern;
 
-        // If there's a base path (not in the document root) then we prepend it
+        // If there's a base path (not in the document root), then we prepend it
         if ($this->basePath) {
             $url = $this->basePath . $url;
         }
@@ -261,19 +265,11 @@ class Router
     }
 
     /**
-     * Returns the base path if the application is not in the server's document root. If no base path is set, an empty
-     * string is returned.
-     * @return string The base path without a trailing slash or an empty string if no base path is set.
-     */
-    public function getBasePath(): string
-    {
-        return $this->basePath ?? "";
-    }
-
-    /**
-     * Performs a generic redirect to a full URL using header(). GET parameters may optionally be supplied as an
-     * associative array.
-     * @param string $url The target URL for the redirect.
+     * Performs a redirect to an absolute URL using header(). Use this method for external redirects
+     * (e.g., to another domain). For redirects to internal routes, use redirectTo() instead — it
+     * automatically prepends the base path via urlFor().
+     * @param string $url The absolute target URL for the redirect. Must be a trusted, application-controlled
+     * value. Do not pass unvalidated user input directly — this would create an Open Redirect vulnerability.
      * @param array<string>|null $queryParameters Optional GET parameters to be appended to the URL.
      * @return never Never returns due to the redirect.
      */
@@ -282,7 +278,7 @@ class Router
         // Set response code 302 for a generic redirect.
         http_response_code(302);
         if (isset($queryParameters)) {
-            header("Location: $url" . "?" . http_build_query($queryParameters));
+            header("Location: $url?" . http_build_query($queryParameters));
         } else {
             header("Location: $url");
         }
@@ -290,9 +286,10 @@ class Router
     }
 
     /**
-     * Perform a generic redirect to a route pattern. This pattern will then be converted to a full URL and the redirect
-     * will be performed.
-     * @param string $pattern The route pattern. Has to start with a slash ("/").
+     * Performs a redirect to an internal route pattern. The pattern is converted to a full URL via urlFor(),
+     * which automatically prepends the base path if set. Use this method for redirects within the application.
+     * For external redirects, use redirect() with an absolute URL instead.
+     * @param string $pattern The route pattern to redirect to. Has to start with a slash ("/").
      * @return never Never returns due to the redirect.
      */
     public function redirectTo(string $pattern): never
@@ -300,37 +297,4 @@ class Router
         $this->redirect($this->urlFor($pattern));
     }
 
-    /**
-     * Returns the current route as a string in the format "METHOD /path".
-     * @param string $basePath The base path to remove from the URI.
-     * @return string The current route.
-     */
-    public static function getRoute(string $basePath = ""): string
-    {
-        // Guard: $_SERVER["REQUEST_URI"] must be set and be a string, otherwise "/" is returned as default value
-        if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
-            return (isset($_SERVER["REQUEST_METHOD"]) && is_string(
-                    $_SERVER["REQUEST_METHOD"],
-                ) ? $_SERVER["REQUEST_METHOD"] : "GET") . " /";
-        }
-
-        $uri = rawurldecode($_SERVER["REQUEST_URI"]);
-
-        // Remove query string if present
-        if (($pos = strpos($uri, "?")) !== false) {
-            $uri = substr($uri, 0, $pos);
-        }
-
-        // Remove base path if set
-        if ($basePath !== "") {
-            $uri = substr($uri, strlen($basePath));
-        }
-
-        // Ensure URI starts with /
-        if (empty($uri)) {
-            $uri = "/";
-        }
-
-        return $_SERVER["REQUEST_METHOD"] . " " . $uri;
-    }
 }

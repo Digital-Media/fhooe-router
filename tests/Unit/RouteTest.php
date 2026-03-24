@@ -5,6 +5,7 @@
  */
 
 use Fhooe\Router\Exception\HandlerNotSetException;
+use Fhooe\Router\Exception\RouteAlreadyExistsException;
 use Fhooe\Router\Type\HttpMethod;
 use Fhooe\Router\Router;
 
@@ -45,7 +46,7 @@ it("adds the GET route /test with a matching base path set and runs it", functio
     $this->router->set404Callback(function () {
         echo "404";
     });
-    $this->router->setBasePath("/some/basepath");
+    $this->router->basePath = "/some/basepath";
 
     $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test";
@@ -70,7 +71,7 @@ it("adds the GET route /test with a mismatching base path set and runs it", func
     $this->router->set404Callback(function () {
         echo "404";
     });
-    $this->router->setBasePath("/some/basepath");
+    $this->router->basePath = "/some/basepath";
 
     $this->router->addRoute(HttpMethod::GET, "/test", function () {
         echo "test";
@@ -93,7 +94,7 @@ it("adds the POST route /test and runs it without a 404 handler", function () {
         echo "test";
     });
 
-    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set.");
+    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set. Call set404Callback() before run().");
 });
 
 /**
@@ -105,7 +106,7 @@ it("adds the GET route /other and runs it without a 404 handler", function () {
         echo "other";
     });
 
-    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set.");
+    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set. Call set404Callback() before run().");
 });
 
 /**
@@ -265,6 +266,36 @@ it("handles POST request correctly", function () {
     ob_end_clean();
 
     expect($output)->toBe("submitted");
+});
+
+/**
+ * Test that urlFor() returns the correct URL with and without a base path
+ */
+it("returns the correct URL for a pattern without a base path", function () {
+    expect($this->router->urlFor("/form"))->toBe("/form");
+});
+
+it("returns the correct URL for a pattern with a base path", function () {
+    $this->router->basePath = "/myapp";
+    expect($this->router->urlFor("/form"))->toBe("/myapp/form");
+});
+
+it("throws InvalidArgumentException when urlFor() is called with a pattern missing the leading slash", function () {
+    expect(fn() => $this->router->urlFor("form"))
+        ->toThrow(InvalidArgumentException::class, "Route pattern must start with a slash");
+});
+
+/**
+ * Test that adding a duplicate route throws RouteAlreadyExistsException
+ */
+it("throws RouteAlreadyExistsException when adding a duplicate route", function () {
+    $this->router->addRoute(HttpMethod::GET, "/test", function () {
+        echo "test";
+    });
+
+    expect(fn() => $this->router->addRoute(HttpMethod::GET, "/test", function () {
+        echo "duplicate";
+    }))->toThrow(RouteAlreadyExistsException::class);
 });
 
 /**
