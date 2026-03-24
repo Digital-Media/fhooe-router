@@ -265,9 +265,11 @@ class Router
     }
 
     /**
-     * Performs a generic redirect to a full URL using header(). GET parameters may optionally be supplied as an
-     * associative array.
-     * @param string $url The target URL for the redirect.
+     * Performs a redirect to an absolute URL using header(). Use this method for external redirects
+     * (e.g., to another domain). For redirects to internal routes, use redirectTo() instead — it
+     * automatically prepends the base path via urlFor().
+     * @param string $url The absolute target URL for the redirect. Must be a trusted, application-controlled
+     * value. Do not pass unvalidated user input directly — this would create an Open Redirect vulnerability.
      * @param array<string>|null $queryParameters Optional GET parameters to be appended to the URL.
      * @return never Never returns due to the redirect.
      */
@@ -276,7 +278,7 @@ class Router
         // Set response code 302 for a generic redirect.
         http_response_code(302);
         if (isset($queryParameters)) {
-            header("Location: $url" . "?" . http_build_query($queryParameters));
+            header("Location: $url?" . http_build_query($queryParameters));
         } else {
             header("Location: $url");
         }
@@ -284,9 +286,10 @@ class Router
     }
 
     /**
-     * Perform a generic redirect to a route pattern. This pattern will then be converted to a full URL and the redirect
-     * will be performed.
-     * @param string $pattern The route pattern. Has to start with a slash ("/").
+     * Performs a redirect to an internal route pattern. The pattern is converted to a full URL via urlFor(),
+     * which automatically prepends the base path if set. Use this method for redirects within the application.
+     * For external redirects, use redirect() with an absolute URL instead.
+     * @param string $pattern The route pattern to redirect to. Has to start with a slash ("/").
      * @return never Never returns due to the redirect.
      */
     public function redirectTo(string $pattern): never
