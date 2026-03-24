@@ -1,7 +1,6 @@
 {
     "name": "fhooe/router",
     "description": "A simple object-oriented router for educational purposes.",
-    "version": "3.0.0",
     "license": "MIT",
     "type": "library",
     "keywords": [
@@ -23,10 +22,10 @@
     },
     "require-dev": {
         "ergebnis/composer-normalize": "^2.50",
+        "friendsofphp/php-cs-fixer": "^3.94",
         "mockery/mockery": "^1.6",
-        "pestphp/pest": "^3.8",
-        "phpstan/phpstan": "^2.1",
-        "friendsofphp/php-cs-fixer": "^3.94"
+        "pestphp/pest": "^4.4",
+        "phpstan/phpstan": "^2.1"
     },
     "minimum-stability": "stable",
     "autoload": {
