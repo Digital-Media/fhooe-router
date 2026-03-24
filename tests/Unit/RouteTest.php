@@ -94,7 +94,7 @@ it("adds the POST route /test and runs it without a 404 handler", function () {
         echo "test";
     });
 
-    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set.");
+    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set. Call set404Callback() before run().");
 });
 
 /**
@@ -106,7 +106,7 @@ it("adds the GET route /other and runs it without a 404 handler", function () {
         echo "other";
     });
 
-    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set.");
+    expect(fn() => $this->router->run())->toThrow(HandlerNotSetException::class, "404 handler not set. Call set404Callback() before run().");
 });
 
 /**

@@ -148,7 +148,7 @@ class Router
             ($this->noRouteCallback)();
             $this->logger->info("No route match found. 404 callback executed.");
         } else {
-            throw new HandlerNotSetException("404 handler not set.");
+            throw new HandlerNotSetException("404 handler not set. Call set404Callback() before run().");
         }
     }
 
