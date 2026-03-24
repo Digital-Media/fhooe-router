@@ -20,9 +20,7 @@ Composer will create a project in the `path/to/install` directory.
 
 ## Basic Usage
 
-*fhooe/router* can be used in two ways:
-
-### Using a `Router` Object (recommended)
+### Using a `Router` Object
 
 1. Instantiate the `Router` class.
 
@@ -68,10 +66,10 @@ Composer will create a project in the `path/to/install` directory.
    });
    ```
 
-4. Optional: Define a base path if your application is not located in your server's document root. 
+4. Optional: Define a base path if your application is not located in your server's document root.
 
    ```php
-   $router->setBasePath("/path/to/your/files");
+   $router->basePath = "/path/to/your/files";
    ```
 
 5. Run the router. This will fetch the current URI, match it against the defined routes, and execute them if a match is found.
@@ -80,28 +78,16 @@ Composer will create a project in the `path/to/install` directory.
    $router->run();
    ```
 
-### Using the Static Routing Method `Router::getRoute()`
+## Migrating from v2
 
-1. Invoke the static method. Provide a base path as an argument if your project is not located in your server's document root. The method returns the route as a string in the form of `METHOD /pattern` , e.g., `GET /`, when a GET request was made to the root directory.
-
-   ```php
-   $route = Router::getRoute("/path/to/your/files");
-   ```
-
-2. Use a conditional expression to decide what to do with the matched route.
-
-   ```php
-   switch($route) {
-       case "GET /":
-           // e.g., load a view
-           break;
-       default:
-           // e.g., load the 404 view
-           break;
-   }
-   ```
-
-The static method is intended primarily to quickly get the route string. It offers less functionality, e.g., no reverse route resolution.
+- `setBasePath()` and `getBasePath()` are replaced by the public `basePath` property:
+  ```php
+  // v2
+  $router->setBasePath("/path");
+  // v3
+  $router->basePath = "/path";
+  ```
+- The static method `Router::getRoute()` has been removed. Use the object-oriented API with `run()` instead.
 
 ## Contributing
 
