@@ -4,3 +4,7 @@ composer.lock
 composer.phar
 cache
 vendor
+
+# Claude Code local settings
+.claude/settings.local.json
+CLAUDE.md
