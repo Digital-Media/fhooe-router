@@ -287,37 +287,4 @@ class Router
         $this->redirect($this->urlFor($pattern));
     }
 
-    /**
-     * Returns the current route as a string in the format "METHOD /path".
-     * @param string $basePath The base path to remove from the URI.
-     * @return string The current route.
-     */
-    public static function getRoute(string $basePath = ""): string
-    {
-        // Guard: $_SERVER["REQUEST_URI"] must be set and be a string, otherwise "/" is returned as default value
-        if (!isset($_SERVER["REQUEST_URI"]) || !is_string($_SERVER["REQUEST_URI"])) {
-            return (isset($_SERVER["REQUEST_METHOD"]) && is_string(
-                    $_SERVER["REQUEST_METHOD"],
-                ) ? $_SERVER["REQUEST_METHOD"] : "GET") . " /";
-        }
-
-        $uri = rawurldecode($_SERVER["REQUEST_URI"]);
-
-        // Remove query string if present
-        if (($pos = strpos($uri, "?")) !== false) {
-            $uri = substr($uri, 0, $pos);
-        }
-
-        // Remove base path if set
-        if ($basePath !== "") {
-            $uri = substr($uri, strlen($basePath));
-        }
-
-        // Ensure URI starts with /
-        if (empty($uri)) {
-            $uri = "/";
-        }
-
-        return $_SERVER["REQUEST_METHOD"] . " " . $uri;
-    }
 }
